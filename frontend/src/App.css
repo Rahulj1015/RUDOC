@@ -127,6 +127,21 @@ body {
   margin-bottom: 20px;
 }
 
+.brand-logo-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 4px 18px var(--primary-glow);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.brand-logo-img:hover {
+  transform: scale(1.08) rotate(3deg);
+  box-shadow: 0 6px 24px var(--primary-glow);
+}
+
 .brand-logo {
   width: 42px;
   height: 42px;
@@ -572,6 +587,39 @@ body {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+.hero-logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 24px;
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+.hero-logo-img {
+  width: 135px;
+  height: 135px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 10px 30px rgba(13, 148, 136, 0.4), 0 0 0 4px rgba(255, 255, 255, 0.15);
+  animation: floatEmblem 4s ease-in-out infinite alternate;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.hero-logo-img:hover {
+  transform: scale(1.08) rotate(3deg);
+  box-shadow: 0 16px 40px rgba(13, 148, 136, 0.6), 0 0 0 6px rgba(45, 212, 191, 0.4);
+}
+
+@keyframes floatEmblem {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  100% {
+    transform: translateY(-8px) rotate(2deg);
+  }
 }
 
 /* Metrics Grid */

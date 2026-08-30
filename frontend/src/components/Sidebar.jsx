@@ -23,7 +23,7 @@ export default function Sidebar({
   return (
     <aside className="sidebar">
       <div className="brand-section">
-        <div className="brand-logo">RU</div>
+        <img src="/logo.png" alt="RUDOC Logo" className="brand-logo-img" />
         <div>
           <h1 className="brand-title">RU<span>DOC</span></h1>
           <p className="brand-subtitle">Document Readiness AI</p>

@@ -9,10 +9,23 @@ export default function ExportReportModal({ isOpen, onClose, selectedService, ma
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-card" style={{ maxWidth: '680px' }} onClick={(e) => e.stopPropagation()}>
         <div className="card-header" style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '16px' }}>
-          <div>
-            <span className="badge badge-teal" style={{ marginBottom: '6px' }}>Official Application Audit</span>
-            <h3 className="card-title">RUDOC Document Readiness Report</h3>
-            <p className="card-subtitle">Candidate: {profile?.name || 'Applicant'} • Generated: {new Date().toLocaleDateString()}</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <img
+              src="/logo.png"
+              alt="RUDOC Official"
+              style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '10px',
+                objectFit: 'cover',
+                border: '1px solid #cbd5e1',
+              }}
+            />
+            <div>
+              <span className="badge badge-teal" style={{ marginBottom: '4px' }}>Official Application Audit</span>
+              <h3 className="card-title" style={{ margin: 0 }}>RUDOC Document Readiness Report</h3>
+              <p className="card-subtitle">Candidate: {profile?.name || 'Applicant'} • Generated: {new Date().toLocaleDateString()}</p>
+            </div>
           </div>
           <button type="button" className="btn btn-secondary btn-sm" onClick={onClose}>
             ✕

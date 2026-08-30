@@ -91,7 +91,7 @@ export default function AIAssistant({ onNavigate }) {
         className="ai-copilot-toggle"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span style={{ fontSize: '20px' }}>🤖</span>
+        <img src="/logo.png" alt="RUDOC" style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }} />
         <span>RUDOC AI Assistant</span>
       </button>
 
@@ -101,21 +101,18 @@ export default function AIAssistant({ onNavigate }) {
           {/* Header */}
           <div className="ai-header">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{
-                width: '34px',
-                height: '34px',
-                borderRadius: '50%',
-                background: 'white',
-                color: '#0d9488',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: '900',
-                fontSize: '15px',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-              }}>
-                AI
-              </div>
+              <img
+                src="/logo.png"
+                alt="RUDOC"
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  border: '2px solid rgba(255, 255, 255, 0.4)',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+                }}
+              />
               <div>
                 <h4 style={{ fontSize: '14px', fontWeight: '800', margin: 0 }}>RUDOC Document Co-Pilot</h4>
                 <span style={{ fontSize: '11px', opacity: 0.9 }}>🟢 Active Intelligent Assistant</span>

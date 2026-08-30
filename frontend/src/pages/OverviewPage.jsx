@@ -50,6 +50,9 @@ export default function OverviewPage({
             </button>
           </div>
         </div>
+        <div className="hero-logo-container">
+          <img src="/logo.png" alt="RUDOC Brand Emblem" className="hero-logo-img" />
+        </div>
       </div>
 
       {/* KPI Metrics */}

@@ -1,5 +1,9 @@
-# RUDOC 🇮🇳
-> **Smart Document Readiness & Citizen Service Gap Analysis Assistant**
+<div align="center">
+  <img src="frontend/public/logo.png" width="180" height="180" alt="RUDOC Logo" style="border-radius: 50%;" />
+  <h1>RUDOC 🇮🇳</h1>
+  <p><strong>Smart Document Readiness & Citizen Service Gap Analysis Assistant</strong></p>
+  <p><em>Your Intelligent Document & College Admission Companion</em></p>
+</div>
 
 RUDOC is a digital assistant designed to help applicants (students, job seekers, and citizens) navigate complex documentation requirements for Indian government portals, competitive admissions, and welfare schemes.
 

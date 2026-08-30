@@ -37,14 +37,27 @@ export default function AuthModal({
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <div className="card-header">
-          <div>
-            <span className="badge badge-teal">Account Portal</span>
-            <h3 className="card-title" style={{ marginTop: '4px' }}>
-              {isRegisterMode ? 'Create RUDOC Student Account' : 'Login to Your Vault'}
-            </h3>
-            <p className="card-subtitle">
-              Access your personal verified documents, college checklists, and mismatch audits.
-            </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <img
+              src="/logo.png"
+              alt="RUDOC"
+              style={{
+                width: '46px',
+                height: '46px',
+                borderRadius: '12px',
+                objectFit: 'cover',
+                boxShadow: '0 4px 12px rgba(13, 148, 136, 0.25)',
+              }}
+            />
+            <div>
+              <span className="badge badge-teal">Account Portal</span>
+              <h3 className="card-title" style={{ marginTop: '2px' }}>
+                {isRegisterMode ? 'Create RUDOC Student Account' : 'Login to Your Vault'}
+              </h3>
+              <p className="card-subtitle">
+                Access your personal verified documents, college checklists, and mismatch audits.
+              </p>
+            </div>
           </div>
           <button type="button" className="btn btn-secondary btn-sm" onClick={onClose}>
             ✕
