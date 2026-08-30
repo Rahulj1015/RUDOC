@@ -1075,15 +1075,79 @@ body {
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
+/* Mobile Bottom Glass Dock */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: var(--bg-card);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid var(--border-glass);
+  z-index: 90;
+  padding: 0 6px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  justify-content: space-around;
+  align-items: center;
+}
+
+.mobile-nav-btn {
+  background: transparent;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 6px 4px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--spring-transition);
+  flex: 1;
+}
+
+.mobile-nav-btn.active {
+  color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.mobile-nav-icon {
+  font-size: 18px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-nav-badge {
+  position: absolute;
+  top: -4px;
+  right: -8px;
+  background: #ef4444;
+  color: white;
+  font-size: 9px;
+  font-weight: 800;
+  border-radius: 10px;
+  padding: 1px 4px;
+  min-width: 14px;
+  text-align: center;
+}
+
+.mobile-nav-label {
+  letter-spacing: -0.2px;
+  font-size: 10px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 992px) {
   .app-shell {
     flex-direction: column;
-  }
-  .sidebar {
-    width: 100%;
-    height: auto;
-    position: static;
   }
   .grid-2col, .match-columns {
     grid-template-columns: 1fr;
@@ -1092,5 +1156,49 @@ body {
     flex-direction: column;
     text-align: center;
     gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+  .mobile-bottom-nav {
+    display: flex;
+  }
+  .main-content {
+    padding-bottom: 84px;
+  }
+  .page-container {
+    padding: 16px 12px;
+  }
+  .hero-banner {
+    padding: 22px 18px;
+  }
+  .hero-logo-img {
+    width: 90px;
+    height: 90px;
+  }
+  .top-navbar {
+    padding: 12px 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .navbar-left .page-title {
+    font-size: 17px;
+  }
+  .navbar-right {
+    gap: 6px;
+  }
+  .ai-copilot-toggle {
+    bottom: 74px;
+    right: 14px;
+  }
+  .ai-copilot-modal {
+    bottom: 80px;
+    right: 10px;
+    left: 10px;
+    width: auto;
+    max-height: 70vh;
   }
 }

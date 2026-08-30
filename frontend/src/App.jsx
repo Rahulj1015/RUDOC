@@ -5,6 +5,7 @@ import AuthModal from './components/AuthModal'
 import DocumentUploadModal from './components/DocumentUploadModal'
 import ExportReportModal from './components/ExportReportModal'
 import MismatchDetector from './components/MismatchDetector'
+import MobileNav from './components/MobileNav'
 import Navbar from './components/Navbar'
 import Sidebar from './components/Sidebar'
 import CollegesPage from './pages/CollegesPage'
@@ -14,7 +15,7 @@ import OverviewPage from './pages/OverviewPage'
 import ServicesPage from './pages/ServicesPage'
 import TasksPage from './pages/TasksPage'
 
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:4000'
+const API_URL = import.meta.env.VITE_API_URL ?? ''
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('overview')
@@ -450,6 +451,13 @@ export default function App() {
         match={match}
         auditData={auditData}
         profile={currentUser || overview?.profile}
+      />
+
+      {/* Mobile Glass Bottom Tab Navigation */}
+      <MobileNav
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+        auditIssuesCount={auditData?.issues?.length || 0}
       />
     </div>
   )

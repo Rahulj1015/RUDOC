@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: rudoc-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node backend/server.js
+    envVars:
+      - key: PORT
+        value: 10000
+
+  - type: web
+    name: rudoc-frontend
+    env: static
+    plan: free
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: rudoc-backend
+          property: host

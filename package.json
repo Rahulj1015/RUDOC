@@ -1,0 +1,22 @@
+{
+  "name": "rudoc-app",
+  "version": "1.6.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build",
+    "start": "node backend/server.js",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev"
+  },
+  "keywords": [
+    "rudoc",
+    "document-vault",
+    "mismatch-checker",
+    "college-admissions",
+    "indian-governance",
+    "react",
+    "vite",
+    "pwa"
+  ]
+}

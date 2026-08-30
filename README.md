@@ -87,6 +87,31 @@ Open your browser at **`http://127.0.0.1:5173`**.
 
 ---
 
+## 🌐 1-Click Worldwide Cloud Deployment & Mobile App (PWA)
+
+RUDOC is pre-configured for free, instant cloud deployment so anyone around the world on mobile or desktop can access it.
+
+### Option A: 1-Click Free Deployment on Vercel (Recommended)
+
+1. Go to [vercel.com](https://vercel.com) and click **"Add New Project"**.
+2. Import your GitHub repository: **`https://github.com/Rahulj1015/RUDOC`**.
+3. Keep default settings (`vercel.json` and `api/index.js` handle both the React frontend & serverless API automatically).
+4. Click **Deploy** 🚀 — your app is instantly live globally with a free HTTPS URL (e.g. `https://rudoc.vercel.app`)!
+
+### Option B: Free Fullstack Deployment on Render
+
+1. Go to [render.com](https://render.com) and connect your GitHub repository.
+2. Render will automatically detect [`render.yaml`](file:///d:/RUDOC/render.yaml) and launch both the web API and frontend static site.
+
+### 📱 Installing as a Native Mobile / Desktop App (PWA)
+
+RUDOC includes full Progressive Web App (PWA) manifest support:
+* **On Android (Chrome / Brave):** Tap the **`⋮`** menu ➔ select **"Install App"** or **"Add to Home screen"**.
+* **On iPhone / iPad (Safari):** Tap the **Share** button ➔ tap **"Add to Home Screen"** ➔ RUDOC opens fullscreen with no browser URL bars.
+* **On Windows / Mac (Chrome / Edge):** Click the **Install** icon in the address bar to run RUDOC as a standalone desktop software.
+
+---
+
 ## 📡 API Endpoints
 
 | Method | Endpoint | Description |

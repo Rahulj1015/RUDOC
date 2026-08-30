@@ -433,8 +433,9 @@ function getOverview() {
   }
 }
 
-const server = http.createServer(async (request, response) => {
-  const url = new URL(request.url, `http://${request.headers.host}`)
+export async function handleRequest(request, response) {
+  const host = request.headers.host || 'localhost'
+  const url = new URL(request.url, `http://${host}`)
   const path = url.pathname
 
   if (request.method === 'OPTIONS') {
@@ -679,8 +680,14 @@ const server = http.createServer(async (request, response) => {
   }
 
   sendJson(response, 404, { error: 'Route not found', path })
-})
+}
 
-server.listen(PORT, () => {
-  console.log(`RUDOC API running at http://127.0.0.1:${PORT}`)
-})
+const server = http.createServer(handleRequest)
+
+if (!process.env.VERCEL) {
+  server.listen(PORT, () => {
+    console.log(`RUDOC API running at http://127.0.0.1:${PORT}`)
+  })
+}
+
+export default handleRequest
