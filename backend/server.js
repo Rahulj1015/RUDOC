@@ -104,68 +104,128 @@ function checkDocumentEquivalency(userDocName, requiredDocName) {
   })
 }
 
-// Cross-Document Mismatch Audit
+// Cross-Document Mismatch Audit (Smart & Simple Indian Governance Model)
 function auditDocumentMismatches() {
   const currentUser = getCurrentUser()
   const userDocs = getUserDocuments()
   const issues = []
 
-  // Pairwise cross-audit for Name & DOB
-  for (let i = 0; i < userDocs.length; i++) {
-    for (let j = i + 1; j < userDocs.length; j++) {
-      const doc1 = userDocs[i]
-      const doc2 = userDocs[j]
+  const knownOfficialKeywords = [
+    'aadhaar',
+    'pan',
+    '10th',
+    '12th',
+    'marksheet',
+    'passport',
+    'domicile',
+    'caste',
+    'income',
+    'degree',
+    'transfer certificate',
+    'tc',
+    'migration',
+    'scorecard',
+    'driving',
+    'voter',
+    'passbook',
+  ]
 
-      if (doc1.holderName && doc2.holderName) {
-        const nameSim = calculateStringSimilarity(doc1.holderName, doc2.holderName)
+  // Filter only genuine official identity & academic certificates
+  const officialDocs = userDocs.filter((d) => {
+    const name = (d.name || '').toLowerCase()
+    const cat = (d.category || '').toLowerCase()
+    if (cat === 'general' || cat === 'notes' || cat === 'other' || name.includes('question') || name.includes('note') || name.includes('syllabus')) {
+      return false
+    }
+    return knownOfficialKeywords.some((kw) => name.includes(kw))
+  })
+
+  // Find Class 10 Marksheet as the Primary Legal Benchmark
+  const benchmarkDoc =
+    officialDocs.find((d) => d.name.toLowerCase().includes('10th')) ||
+    officialDocs.find((d) => d.name.toLowerCase().includes('aadhaar')) ||
+    officialDocs[0]
+
+  if (benchmarkDoc && officialDocs.length > 1) {
+    const diffDocs = []
+    const dobDiffDocs = []
+
+    officialDocs.forEach((doc) => {
+      if (doc.id === benchmarkDoc.id) return
+
+      if (benchmarkDoc.holderName && doc.holderName) {
+        const nameSim = calculateStringSimilarity(benchmarkDoc.holderName, doc.holderName)
         if (nameSim < 100) {
-          issues.push({
-            id: `issue-name-${doc1.id}-${doc2.id}`,
-            type: 'NAME_SPELLING_MISMATCH',
-            severity: nameSim < 75 ? 'HIGH' : 'MEDIUM',
-            docA: doc1.name,
-            docB: doc2.name,
-            valA: doc1.holderName,
-            valB: doc2.holderName,
-            similarityScore: nameSim,
-            message: `Name variation detected: "${doc1.holderName}" on ${doc1.name} vs "${doc2.holderName}" on ${doc2.name} (${nameSim}% match).`,
-            advice:
-              nameSim < 85
-                ? 'High risk of rejection in JoSAA/CSAS/UPSC! Obtain an official One-and-the-Same Person Notary Affidavit or apply for an Aadhaar demographic correction before final admission counselling.'
-                : 'Minor spelling variation. Carry an attested affidavit or self-declaration proforma to the reporting center.',
-          })
+          diffDocs.push({ doc, nameSim })
         }
       }
 
-      if (doc1.dob && doc2.dob && doc1.dob !== doc2.dob) {
-        issues.push({
-          id: `issue-dob-${doc1.id}-${doc2.id}`,
-          type: 'DOB_MISMATCH',
-          severity: 'CRITICAL',
-          docA: doc1.name,
-          docB: doc2.name,
-          valA: doc1.dob,
-          valB: doc2.dob,
-          similarityScore: 0,
-          message: `Conflicting Date of Birth: ${doc1.dob} on ${doc1.name} vs ${doc2.dob} on ${doc2.name}.`,
-          advice:
-            'Critical discrepancy! 10th Marksheet is universally treated as the sole benchmark for Date of Birth. Immediately update your Aadhaar card online via myaadhaar.uidai.gov.in using your 10th marksheet.',
-        })
+      if (benchmarkDoc.dob && doc.dob && benchmarkDoc.dob !== doc.dob) {
+        dobDiffDocs.push(doc)
       }
+    })
+
+    // Group Name Variations into a single, clean actionable issue
+    if (diffDocs.length > 0) {
+      const avgSim = Math.round(diffDocs.reduce((acc, d) => acc + d.nameSim, 0) / diffDocs.length)
+      const docNames = diffDocs.map((d) => d.doc.name).join(', ')
+      const sampleVal = diffDocs[0].doc.holderName
+
+      const isMiddleNameDiff =
+        benchmarkDoc.holderName.toLowerCase().includes(sampleVal.toLowerCase()) ||
+        sampleVal.toLowerCase().includes(benchmarkDoc.holderName.toLowerCase())
+
+      issues.push({
+        id: 'issue-name-benchmark',
+        type: isMiddleNameDiff ? 'Middle Name Variation' : 'Name Spelling Discrepancy',
+        severity: isMiddleNameDiff ? 'MEDIUM' : avgSim < 75 ? 'HIGH' : 'MEDIUM',
+        docA: { name: `${benchmarkDoc.name} (Benchmark)`, value: benchmarkDoc.holderName },
+        docB: { name: docNames, value: sampleVal },
+        similarity: avgSim,
+        similarityScore: avgSim,
+        message: `Name on Class 10 Marksheet is "${benchmarkDoc.holderName}", whereas ${docNames} list "${sampleVal}".`,
+        recommendation: isMiddleNameDiff
+          ? 'In Indian colleges (JoSAA / CSAS / UPSC), Class 10 is the legal master document. Submit a standard "One-and-the-Same Person" Notary Affidavit (₹100 stamp paper) or update Aadhaar name on myaadhaar.uidai.gov.in.'
+          : 'Different spelling detected! Apply for an official demographic correction on UIDAI portal using your 10th marksheet, or carry an attested Notary Affidavit.',
+        advice: isMiddleNameDiff
+          ? 'Carry a standard "One-and-the-Same Person" Notary Affidavit (₹100 stamp paper) to admission counselling.'
+          : 'Apply for an official demographic correction on UIDAI portal using your 10th marksheet.',
+      })
+    }
+
+    // Group DOB Mismatches
+    if (dobDiffDocs.length > 0) {
+      const docNames = dobDiffDocs.map((d) => d.name).join(', ')
+      issues.push({
+        id: 'issue-dob-benchmark',
+        type: 'Date of Birth Mismatch',
+        severity: 'HIGH',
+        docA: { name: `${benchmarkDoc.name} (Benchmark)`, value: benchmarkDoc.dob },
+        docB: { name: docNames, value: dobDiffDocs[0].dob },
+        similarity: 0,
+        similarityScore: 0,
+        message: `Date of Birth conflict: ${benchmarkDoc.dob} on ${benchmarkDoc.name} vs ${dobDiffDocs[0].dob} on ${docNames}.`,
+        recommendation:
+          '10th Marksheet is universally treated as the sole benchmark for Date of Birth. Immediately update your Aadhaar card online via myaadhaar.uidai.gov.in using your 10th marksheet.',
+        advice:
+          'Update your Aadhaar card online via myaadhaar.uidai.gov.in using your 10th marksheet.',
+      })
     }
   }
 
-  const overallScore = Math.max(0, 100 - issues.reduce((acc, iss) => acc + (iss.severity === 'CRITICAL' ? 35 : iss.severity === 'HIGH' ? 20 : 10), 0))
+  // Calculate clean, balanced score (0 to 100)
+  const penalty = issues.reduce((acc, iss) => acc + (iss.severity === 'HIGH' ? 15 : 10), 0)
+  const overallScore = Math.max(70, 100 - penalty)
 
   return {
     candidateName: currentUser?.name || 'Applicant',
-    totalDocumentsAudited: userDocs.length,
-    overallScore,
-    status: overallScore === 100 ? 'CLEAN_VERIFIED' : overallScore >= 75 ? 'MINOR_WARNINGS' : 'ACTION_REQUIRED',
+    totalDocumentsAudited: officialDocs.length,
+    overallScore: issues.length === 0 ? 100 : overallScore,
+    status: issues.length === 0 ? 'CLEAN_VERIFIED' : 'MINOR_WARNINGS',
     summary:
       issues.length === 0
         ? 'All vault documents are 100% consistent across candidate name and Date of Birth.'
-        : `Detected ${issues.length} potential identity inconsistencies that require affidavit or UIDAI correction before submission.`,
+        : `Detected ${issues.length} item(s) with name/DOB variations. Check the actionable fixes below.`,
     issues,
   }
 }

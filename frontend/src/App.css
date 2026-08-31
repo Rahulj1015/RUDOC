@@ -807,8 +807,65 @@ body {
   border: 1px solid var(--border-glass);
 }
 
-.match-item strong {
+/* Mismatch Detector Cards & Compare Rows */
+.mismatch-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: var(--spring-transition);
+  box-shadow: var(--shadow-card);
+}
+
+.mismatch-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.mismatch-card.high {
+  border-left: 4px solid #ef4444;
+}
+
+.mismatch-compare-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 10px 0 6px 0;
+  flex-wrap: wrap;
+}
+
+.compare-box {
+  flex: 1;
+  min-width: 180px;
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid var(--border-glass);
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+[data-theme="dark"] .compare-box,
+[data-theme="emerald"] .compare-box {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.compare-box span {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.compare-box strong {
+  font-size: 14px;
   color: var(--text-primary);
+  word-break: break-word;
 }
 
 /* Vault Grid */

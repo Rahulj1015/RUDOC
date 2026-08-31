@@ -21,6 +21,15 @@ const documentTemplates = [
     confidence: 96,
   },
   {
+    name: 'Aadhaar Card',
+    category: 'Identity',
+    holderName: 'Rahul Sharma',
+    dob: '2004-05-14',
+    issuer: 'UIDAI (Govt of India)',
+    docNumber: 'XXXX-XXXX-8912',
+    confidence: 98,
+  },
+  {
     name: 'Transfer Certificate (TC)',
     category: 'Education',
     holderName: 'Rahul Sharma',
@@ -74,15 +83,6 @@ const documentTemplates = [
     docNumber: 'DOM/2026/5531',
     confidence: 91,
   },
-  {
-    name: 'JEE / NEET / CUET Scorecard',
-    category: 'Education',
-    holderName: 'Rahul Sharma',
-    dob: '2004-05-14',
-    issuer: 'National Testing Agency (NTA)',
-    docNumber: 'NTA-SCORE-88210',
-    confidence: 98,
-  },
 ]
 
 export default function DocumentUploadModal({ isOpen, onClose, onUploadSuccess, currentUser }) {
@@ -97,7 +97,6 @@ export default function DocumentUploadModal({ isOpen, onClose, onUploadSuccess, 
   const [extractedText, setExtractedText] = useState('')
 
   // Camera State
-  const [isCameraActive, setIsCameraActive] = useState(false)
   const [cameraError, setCameraError] = useState('')
   const [capturedImage, setCapturedImage] = useState(null)
   const videoRef = useRef(null)
@@ -123,14 +122,12 @@ export default function DocumentUploadModal({ isOpen, onClose, onUploadSuccess, 
           videoRef.current.srcObject = stream
           await videoRef.current.play()
         }
-        setIsCameraActive(true)
       } else {
         setCameraError('Camera API is not supported in this browser. Please use File Upload.')
       }
     } catch (err) {
       console.warn('Camera access error:', err)
-      setCameraError('Could not access camera (permission denied or no device found). You can upload a photo instead.')
-      setIsCameraActive(false)
+      setCameraError('Could not access camera. You can upload a document photo or PDF instead.')
     }
   }
 
@@ -139,7 +136,6 @@ export default function DocumentUploadModal({ isOpen, onClose, onUploadSuccess, 
       streamRef.current.getTracks().forEach((track) => track.stop())
       streamRef.current = null
     }
-    setIsCameraActive(false)
   }
 
   useEffect(() => {
@@ -168,14 +164,14 @@ export default function DocumentUploadModal({ isOpen, onClose, onUploadSuccess, 
     runOcrOnImage(dataUrl)
   }
 
-  // Parse Raw OCR Text using Smart Regex
+  // Parse Raw OCR Text using Smart Recognition
   const parseDocumentText = (text) => {
     const lines = text.split('\n').map((l) => l.trim()).filter(Boolean)
     let detectedName = ''
     let detectedDob = ''
     let detectedDocNumber = ''
     let detectedIssuer = ''
-    let detectedCategory = 'Identity'
+    let detectedCategory = 'General Reference'
     let detectedDocType = 'Scanned Document'
 
     const lower = text.toLowerCase()
@@ -213,6 +209,10 @@ export default function DocumentUploadModal({ isOpen, onClose, onUploadSuccess, 
       detectedDocType = 'Medical Fitness Certificate'
       detectedIssuer = 'Registered Medical Officer (MBBS)'
       detectedCategory = 'Medical'
+    } else {
+      detectedDocType = 'Uploaded Document'
+      detectedCategory = 'General Reference'
+      detectedIssuer = 'User Vault'
     }
 
     // 2. Identify Date of Birth (DOB)
@@ -232,7 +232,6 @@ export default function DocumentUploadModal({ isOpen, onClose, onUploadSuccess, 
     if (nameMatch && nameMatch[1]) {
       detectedName = nameMatch[1].replace(/[\r\n]+/g, ' ').trim()
     } else {
-      // Fallback: look for prominent line with 2-3 capitalized words
       const candidateLines = lines.filter((l) => /^[A-Z][a-z]+(\s+[A-Z][a-z]+){1,3}$/.test(l) && !l.toLowerCase().includes('india') && !l.toLowerCase().includes('government'))
       if (candidateLines.length > 0) {
         detectedName = candidateLines[0]
@@ -269,7 +268,7 @@ export default function DocumentUploadModal({ isOpen, onClose, onUploadSuccess, 
   const runOcrOnImage = async (imageSrc) => {
     setIsOcrProcessing(true)
     setOcrProgress(10)
-    setOcrStatusText('Initializing Optical Character Recognition (OCR)...')
+    setOcrStatusText('Reading document text with AI OCR...')
 
     try {
       const worker = await createWorker('eng', 1, {
@@ -277,7 +276,7 @@ export default function DocumentUploadModal({ isOpen, onClose, onUploadSuccess, 
           if (m.status === 'recognizing text') {
             const prog = Math.round((m.progress || 0) * 100)
             setOcrProgress(prog)
-            setOcrStatusText(`Analyzing document text with OCR... ${prog}%`)
+            setOcrStatusText(`Analyzing document... ${prog}%`)
           }
         },
       })
@@ -288,7 +287,7 @@ export default function DocumentUploadModal({ isOpen, onClose, onUploadSuccess, 
       await worker.terminate()
 
       setOcrProgress(100)
-      setOcrStatusText('OCR analysis complete! Metadata extracted.')
+      setOcrStatusText('Scan complete! Details auto-filled below.')
 
       const parsed = parseDocumentText(rawText)
       setName(parsed.name)
@@ -300,15 +299,15 @@ export default function DocumentUploadModal({ isOpen, onClose, onUploadSuccess, 
       setConfidence(parsed.confidence)
     } catch (err) {
       console.warn('OCR execution fallback:', err)
-      setOcrStatusText('OCR completed with smart visual recognition.')
-      setName('Aadhaar Card')
-      setCategory('Identity')
-      setHolderName(currentUser?.name || 'Rahul Sharma')
+      setOcrStatusText('Scan finished.')
+      setName('Uploaded Document')
+      setCategory('General Reference')
+      setHolderName(currentUser?.name || 'Applicant')
       setDob(currentUser?.dob || '2004-05-14')
       setDocNumber(`DOC-${Math.floor(100000 + Math.random() * 900000)}`)
-      setIssuer('UIDAI (Govt of India)')
-      setConfidence(94)
-      setExtractedText('GOVERNMENT OF INDIA\nRahul Sharma\nDOB: 14/05/2004\nXXXX-XXXX-8912')
+      setIssuer('User Vault')
+      setConfidence(90)
+      setExtractedText('Document uploaded to vault.')
     } finally {
       setIsOcrProcessing(false)
     }
@@ -356,17 +355,19 @@ export default function DocumentUploadModal({ isOpen, onClose, onUploadSuccess, 
     onClose()
   }
 
+  const isOfficialDoc = category === 'Identity' || category === 'Education' || category === 'Revenue & Certificate'
+
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-card" style={{ maxWidth: '720px' }} onClick={(e) => e.stopPropagation()}>
+      <div className="modal-card" style={{ maxWidth: '700px' }} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="card-header" style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <img src="/logo.png" alt="RUDOC" style={{ width: '42px', height: '42px', borderRadius: '12px' }} />
+            <img src="/logo.png" alt="RUDOC" style={{ width: '40px', height: '40px', borderRadius: '10px' }} />
             <div>
-              <span className="badge badge-teal">Live OCR Document Scanner</span>
-              <h3 className="card-title" style={{ marginTop: '2px' }}>Add Document to Encrypted Vault</h3>
-              <p className="card-subtitle">Scan via Camera, upload image/PDF, or select standard verified templates.</p>
+              <span className="badge badge-teal">Document Vault Scanner</span>
+              <h3 className="card-title" style={{ marginTop: '2px', fontSize: '18px' }}>Add Document to Vault</h3>
+              <p className="card-subtitle">Scan with Camera, select a file, or choose standard verified templates.</p>
             </div>
           </div>
           <button type="button" className="btn btn-secondary btn-sm" onClick={onClose}>
@@ -375,7 +376,7 @@ export default function DocumentUploadModal({ isOpen, onClose, onUploadSuccess, 
         </div>
 
         {/* Mode Selector Tabs */}
-        <div style={{ display: 'flex', gap: '8px', margin: '18px 0', borderBottom: '1px solid var(--border-glass)', paddingBottom: '12px' }}>
+        <div style={{ display: 'flex', gap: '8px', margin: '16px 0', borderBottom: '1px solid var(--border-glass)', paddingBottom: '12px' }}>
           <button
             type="button"
             className={`btn btn-sm ${activeMode === 'camera' ? 'btn-primary' : 'btn-secondary'}`}
@@ -394,7 +395,7 @@ export default function DocumentUploadModal({ isOpen, onClose, onUploadSuccess, 
               stopCamera()
             }}
           >
-            📁 Upload Image / PDF Scan
+            📁 Upload Photo / PDF
           </button>
           <button
             type="button"
@@ -404,13 +405,13 @@ export default function DocumentUploadModal({ isOpen, onClose, onUploadSuccess, 
               stopCamera()
             }}
           >
-            ⚡ 1-Click Test Templates
+            ⚡ Standard Templates
           </button>
         </div>
 
         {/* 1. Live Camera Viewport */}
         {activeMode === 'camera' && (
-          <div style={{ marginBottom: '18px' }}>
+          <div style={{ marginBottom: '16px' }}>
             {!capturedImage ? (
               <div className="camera-viewfinder-container">
                 <video ref={videoRef} className="camera-video" autoPlay playsInline muted />
@@ -434,11 +435,11 @@ export default function DocumentUploadModal({ isOpen, onClose, onUploadSuccess, 
                 )}
               </div>
             ) : (
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', background: 'rgba(0,0,0,0.04)', padding: '12px', borderRadius: '12px' }}>
-                <img src={capturedImage} alt="Captured Snapshot" style={{ width: '120px', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--border-glass)' }} />
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', background: 'rgba(0,0,0,0.03)', padding: '12px', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
+                <img src={capturedImage} alt="Snapshot" style={{ width: '100px', height: '65px', objectFit: 'cover', borderRadius: '8px' }} />
                 <div style={{ flex: 1 }}>
-                  <strong style={{ fontSize: '13px', color: 'var(--text-primary)', display: 'block' }}>Photo Captured Successfully</strong>
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>OCR extraction complete. Verify extracted fields below.</span>
+                  <strong style={{ fontSize: '13px', color: 'var(--text-primary)', display: 'block' }}>Photo Captured</strong>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>OCR extraction complete. Review fields below.</span>
                 </div>
                 <button
                   type="button"
@@ -448,7 +449,7 @@ export default function DocumentUploadModal({ isOpen, onClose, onUploadSuccess, 
                     startCamera()
                   }}
                 >
-                  🔄 Retake Photo
+                  🔄 Retake
                 </button>
               </div>
             )}
@@ -471,13 +472,13 @@ export default function DocumentUploadModal({ isOpen, onClose, onUploadSuccess, 
                 handleFileSelect(e.dataTransfer.files[0])
               }
             }}
-            style={{ marginBottom: '18px' }}
+            style={{ marginBottom: '16px' }}
           >
-            <span style={{ fontSize: '32px', display: 'block', marginBottom: '8px' }}>📄</span>
-            <strong style={{ fontSize: '14px', color: 'var(--text-primary)' }}>Drag & Drop your Document Photo or PDF Scan here</strong>
-            <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '4px 0 12px 0' }}>Supports Aadhaar, 10th/12th Marksheets, PAN, Domicile (PNG, JPG, WEBP, PDF)</p>
+            <span style={{ fontSize: '28px', display: 'block', marginBottom: '6px' }}>📄</span>
+            <strong style={{ fontSize: '13px', color: 'var(--text-primary)' }}>Drag & Drop your document here</strong>
+            <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '4px 0 10px 0' }}>Supports Aadhaar, Marksheets, Certificates, Notes (PNG, JPG, PDF)</p>
             <label className="btn btn-primary btn-sm" style={{ cursor: 'pointer' }}>
-              Browse Files from Computer / Phone
+              Choose File
               <input
                 type="file"
                 accept="image/*,application/pdf"
@@ -494,11 +495,11 @@ export default function DocumentUploadModal({ isOpen, onClose, onUploadSuccess, 
 
         {/* 3. 1-Click Templates */}
         {activeMode === 'templates' && (
-          <div style={{ marginBottom: '18px' }}>
+          <div style={{ marginBottom: '16px' }}>
             <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-secondary)', display: 'block', marginBottom: '8px' }}>
-              Select a pre-verified certificate template to auto-populate:
+              Click any standard template to auto-fill:
             </span>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '8px', maxHeight: '160px', overflowY: 'auto', padding: '4px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '8px', maxHeight: '140px', overflowY: 'auto' }}>
               {documentTemplates.map((t, idx) => (
                 <button
                   key={idx}
@@ -518,30 +519,55 @@ export default function DocumentUploadModal({ isOpen, onClose, onUploadSuccess, 
           </div>
         )}
 
-        {/* OCR Scanning Progress Bar */}
+        {/* OCR Progress */}
         {isOcrProcessing && (
-          <div style={{ background: 'var(--primary-light)', padding: '12px 16px', borderRadius: '12px', marginBottom: '16px', border: '1px solid var(--border-glass)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+          <div style={{ background: 'var(--primary-light)', padding: '10px 14px', borderRadius: '10px', marginBottom: '14px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
               <span style={{ fontSize: '12px', fontWeight: '800', color: 'var(--primary)' }}>⚡ {ocrStatusText}</span>
               <span style={{ fontSize: '12px', fontWeight: '800', color: 'var(--primary)' }}>{ocrProgress}%</span>
             </div>
-            <div style={{ height: '6px', background: 'rgba(0,0,0,0.1)', borderRadius: '10px', overflow: 'hidden' }}>
+            <div style={{ height: '5px', background: 'rgba(0,0,0,0.1)', borderRadius: '8px', overflow: 'hidden' }}>
               <div style={{ width: `${ocrProgress}%`, height: '100%', background: 'var(--primary)', transition: 'width 0.2s ease' }} />
             </div>
           </div>
         )}
 
-        {/* Verified Metadata Form */}
+        {/* Document Classification & Verification Status Banner */}
+        <div style={{
+          background: isOfficialDoc ? 'rgba(16, 185, 129, 0.08)' : 'rgba(0,0,0,0.03)',
+          border: isOfficialDoc ? '1px solid rgba(16, 185, 129, 0.25)' : '1px solid var(--border-glass)',
+          borderRadius: '10px',
+          padding: '10px 14px',
+          marginBottom: '16px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          fontSize: '12px',
+        }}>
+          <div>
+            <strong>{isOfficialDoc ? '🛡️ Official Certificate Verification:' : '📁 General Reference Document:'}</strong>{' '}
+            <span style={{ color: 'var(--text-secondary)' }}>
+              {isOfficialDoc
+                ? 'Will be checked for name/DOB consistency against your 10th Marksheet benchmark.'
+                : 'Stored safely in your vault without affecting admission identity audit scores.'}
+            </span>
+          </div>
+          <span className={`badge ${isOfficialDoc ? 'badge-teal' : 'badge-gray'}`} style={{ fontSize: '10px', whiteSpace: 'nowrap' }}>
+            {isOfficialDoc ? 'Admission Eligible' : 'General File'}
+          </span>
+        </div>
+
+        {/* Verified Form */}
         <form onSubmit={handleSubmit}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
               <label style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>
-                Document Title / Type *
+                Document Name *
               </label>
               <input
                 type="text"
                 className="input-field"
-                placeholder="e.g. 10th Marksheet, Aadhaar Card"
+                placeholder="e.g. 10th Marksheet, Aadhaar Card, Physics Notes"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -550,53 +576,50 @@ export default function DocumentUploadModal({ isOpen, onClose, onUploadSuccess, 
 
             <div>
               <label style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>
-                Category
+                Document Category
               </label>
               <select className="input-field" value={category} onChange={(e) => setCategory(e.target.value)}>
                 <option value="Identity">Identity (Aadhaar, PAN, Passport)</option>
-                <option value="Education">Education (10th/12th, TC, Migration, Scorecard)</option>
+                <option value="Education">Education (10th/12th, TC, Degree)</option>
                 <option value="Revenue & Certificate">Revenue (Domicile, Income, Caste)</option>
-                <option value="Affidavit & Legal">Affidavit & Legal (Gap Year, Undertaking)</option>
+                <option value="Affidavit & Legal">Affidavit & Legal</option>
                 <option value="Medical">Medical (Fitness Certificate)</option>
-                <option value="Finance">Finance (Bank Passbook)</option>
+                <option value="General Reference">General Reference / Study Material / Other</option>
               </select>
             </div>
 
             <div>
               <label style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>
-                Candidate Full Name (As printed) *
+                Candidate Name
               </label>
               <input
                 type="text"
                 className="input-field"
-                placeholder="Candidate Name"
                 value={holderName}
                 onChange={(e) => setHolderName(e.target.value)}
-                required
               />
             </div>
 
             <div>
               <label style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>
-                Date of Birth (DOB) *
+                Date of Birth (DOB)
               </label>
               <input
                 type="date"
                 className="input-field"
                 value={dob}
                 onChange={(e) => setDob(e.target.value)}
-                required
               />
             </div>
 
             <div>
               <label style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>
-                Certificate / Document Number
+                Document / Roll Number
               </label>
               <input
                 type="text"
                 className="input-field"
-                placeholder="e.g. CBSE-X-892110, XXXX-XXXX-8912"
+                placeholder="e.g. CBSE-X-892110"
                 value={docNumber}
                 onChange={(e) => setDocNumber(e.target.value)}
               />
@@ -609,30 +632,15 @@ export default function DocumentUploadModal({ isOpen, onClose, onUploadSuccess, 
               <input
                 type="text"
                 className="input-field"
-                placeholder="e.g. CBSE Board, UIDAI, Tehsildar"
+                placeholder="e.g. CBSE Board, UIDAI"
                 value={issuer}
                 onChange={(e) => setIssuer(e.target.value)}
               />
             </div>
           </div>
 
-          {/* OCR Raw Text Inspector Accordion */}
-          {extractedText && (
-            <div style={{ marginTop: '14px', background: 'rgba(0,0,0,0.03)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '10px 14px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '11px', fontWeight: '800', color: 'var(--primary)' }}>
-                  🔍 OCR Recognition Log (Confidence: {confidence}%)
-                </span>
-                <span className="badge badge-teal" style={{ fontSize: '10px' }}>AI Extracted</span>
-              </div>
-              <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '4px 0 0 0', fontFamily: 'monospace', whiteSpace: 'pre-line', maxHeight: '60px', overflowY: 'auto' }}>
-                {extractedText}
-              </p>
-            </div>
-          )}
-
           {/* Action Buttons */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--border-glass)' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '18px', paddingTop: '14px', borderTop: '1px solid var(--border-glass)' }}>
             <button type="button" className="btn btn-secondary" onClick={onClose}>
               Cancel
             </button>

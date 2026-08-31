@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "lastSaved": "2026-08-31T04:15:03.528Z",
+  "lastSaved": "2026-08-31T04:28:04.197Z",
   "currentUserId": "user-rahul",
   "users": [
     {
@@ -24,19 +24,6 @@
           "updatedAt": "2026-08-18",
           "confidence": 98,
           "extractedText": "GOVERNMENT OF INDIA\nRahul Sharma\nDOB: 14/05/2004\nGender: MALE\nXXXX XXXX 8912\nVID: 9182 3819 2819 1928\nAddress: Flat 402, Shanti Heights, Pune, Maharashtra - 411038"
-        },
-        {
-          "id": "doc-pan",
-          "name": "PAN Card",
-          "category": "Identity",
-          "status": "Verified",
-          "holderName": "Rahul Sharma",
-          "dob": "2004-05-14",
-          "docNumber": "ABCPS1234F",
-          "issuer": "Income Tax Department",
-          "updatedAt": "2026-08-18",
-          "confidence": 96,
-          "extractedText": "INCOME TAX DEPARTMENT\nGOVT. OF INDIA\nPermanent Account Number Card\nABCPS1234F\nName: RAHUL SHARMA\nFather's Name: RAJESH SHARMA\nDate of Birth: 14/05/2004"
         },
         {
           "id": "doc-marksheet-10",
@@ -76,6 +63,19 @@
           "updatedAt": "2026-08-20",
           "confidence": 72,
           "extractedText": "STATE BANK OF INDIA\nA/C No: 39102910291\nAccount Holder: Rahul Sharma\nBranch: Shivajinagar Pune\nIFSC: SBIN0001234\nAadhaar NPCI Seeding Status: Pending Confirmation"
+        },
+        {
+          "id": "doc-1788150154932-52hn",
+          "name": "question bank",
+          "category": "Identity",
+          "status": "Verified",
+          "holderName": "Rahul Sharma",
+          "dob": "2004-05-14",
+          "docNumber": "DOC-286675",
+          "issuer": "UIDAI (Govt of India)",
+          "updatedAt": "2026-08-31",
+          "confidence": 94,
+          "extractedText": "GOVERNMENT OF INDIA\nRahul Sharma\nDOB: 14/05/2004\nXXXX-XXXX-8912"
         }
       ]
     },
@@ -1194,6 +1194,146 @@
       "nextStep": "Book appointment on passportindia.gov.in with 10th marksheet (DOB proof) and Aadhaar (Address proof)."
     }
   },
-  "taskStore": {},
+  "taskStore": {
+    "upsc-civil-services": {
+      "serviceId": "upsc-civil-services",
+      "serviceTitle": "UPSC Civil Services Examination (IAS / IPS / IFS)",
+      "generatedAt": "2026-08-31T04:26:36.844Z",
+      "tasks": [
+        {
+          "id": "task-upsc-civil-services-1",
+          "docName": "Graduation Degree / Passing Certificate",
+          "priority": "Medium",
+          "status": "Not Started",
+          "source": "Relevant Issuing Authority",
+          "timeline": "3-7 Days",
+          "cost": "Standard fee",
+          "link": "https://upsconline.nic.in",
+          "nextStep": "Procure Graduation Degree / Passing Certificate from the designated government counter or online portal."
+        },
+        {
+          "id": "task-upsc-civil-services-2",
+          "docName": "Category / EWS Certificate",
+          "priority": "Medium",
+          "status": "Not Started",
+          "source": "Relevant Issuing Authority",
+          "timeline": "3-7 Days",
+          "cost": "Standard fee",
+          "link": "https://upsconline.nic.in",
+          "nextStep": "Procure Category / EWS Certificate from the designated government counter or online portal."
+        },
+        {
+          "id": "task-upsc-civil-services-3",
+          "docName": "Disability / PwD Certificate",
+          "priority": "Medium",
+          "status": "Not Started",
+          "source": "Relevant Issuing Authority",
+          "timeline": "3-7 Days",
+          "cost": "Standard fee",
+          "link": "https://upsconline.nic.in",
+          "nextStep": "Procure Disability / PwD Certificate from the designated government counter or online portal."
+        },
+        {
+          "id": "task-upsc-civil-services-4",
+          "docName": "Passport Size Photograph",
+          "priority": "Medium",
+          "status": "Not Started",
+          "source": "Relevant Issuing Authority",
+          "timeline": "3-7 Days",
+          "cost": "Standard fee",
+          "link": "https://upsconline.nic.in",
+          "nextStep": "Procure Passport Size Photograph from the designated government counter or online portal."
+        }
+      ]
+    },
+    "aadhaar-correction": {
+      "serviceId": "aadhaar-correction",
+      "serviceTitle": "Aadhaar Name / DOB / Address Demographic Update",
+      "generatedAt": "2026-08-31T04:23:36.660Z",
+      "tasks": []
+    },
+    "passport-application": {
+      "serviceId": "passport-application",
+      "serviceTitle": "Fresh Passport Application (Tatkaal & Normal PSK)",
+      "generatedAt": "2026-08-31T04:27:48.647Z",
+      "tasks": []
+    },
+    "pan-aadhaar-link": {
+      "serviceId": "pan-aadhaar-link",
+      "serviceTitle": "PAN Card Application & Aadhaar Linkage (NSDL / UTIITSL)",
+      "generatedAt": "2026-08-31T04:27:50.709Z",
+      "tasks": [
+        {
+          "id": "task-pan-aadhaar-link-1",
+          "docName": "Passport Size Photograph",
+          "priority": "Medium",
+          "status": "Not Started",
+          "source": "Relevant Issuing Authority",
+          "timeline": "3-7 Days",
+          "cost": "Standard fee",
+          "link": "https://www.incometax.gov.in/iec/foportal",
+          "nextStep": "Procure Passport Size Photograph from the designated government counter or online portal."
+        }
+      ]
+    },
+    "post-matric-scholarship": {
+      "serviceId": "post-matric-scholarship",
+      "serviceTitle": "National Scholarship Portal (NSP Central & State Schemes)",
+      "generatedAt": "2026-08-31T04:27:52.904Z",
+      "tasks": [
+        {
+          "id": "task-post-matric-scholarship-1",
+          "docName": "Income Certificate",
+          "priority": "High",
+          "status": "Not Started",
+          "source": "State e-District Portal / Tahsildar Office",
+          "timeline": "7-14 Days",
+          "cost": "₹30 - ₹50",
+          "link": "https://edistrict.delhi.gov.in",
+          "nextStep": "Apply online on your state e-District portal with salary slips/ITR and ration card for fee concession and scholarships."
+        },
+        {
+          "id": "task-post-matric-scholarship-2",
+          "docName": "Caste Certificate",
+          "priority": "High",
+          "status": "Not Started",
+          "source": "Revenue Dept / Tehsildar / District Magistrate",
+          "timeline": "15-21 Days",
+          "cost": "₹50",
+          "link": "https://edistrict.up.gov.in",
+          "nextStep": "Apply on state revenue portal with family lineage caste proof. Central format is mandatory for IITs/AIIMS/UPSC."
+        }
+      ]
+    },
+    "driving-license": {
+      "serviceId": "driving-license",
+      "serviceTitle": "Learner & Permanent Driving Licence (Sarathi Parivahan)",
+      "generatedAt": "2026-08-31T04:27:55.174Z",
+      "tasks": [
+        {
+          "id": "task-driving-license-1",
+          "docName": "Medical Fitness Certificate",
+          "priority": "Medium",
+          "status": "Not Started",
+          "source": "Registered Medical Practitioner (Govt Hospital / MBBS Doctor)",
+          "timeline": "Same Day",
+          "cost": "₹100 - ₹200",
+          "link": "https://josaa.nic.in",
+          "nextStep": "Download your college’s prescribed medical proforma (e.g. JoSAA Annexure 7) and get it stamped by an MBBS doctor."
+        },
+        {
+          "id": "task-driving-license-2",
+          "docName": "Passport Size Photograph",
+          "priority": "Medium",
+          "status": "Not Started",
+          "source": "Relevant Issuing Authority",
+          "timeline": "3-7 Days",
+          "cost": "Standard fee",
+          "link": "https://parivahan.gov.in",
+          "nextStep": "Procure Passport Size Photograph from the designated government counter or online portal."
+        }
+      ]
+    }
+  },
   "auditLogs": []
 }

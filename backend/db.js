@@ -212,3 +212,4 @@ export function updateTaskStatus(serviceId, taskId, status) {
 
 // Auto init on import
 initializeDb()
+
