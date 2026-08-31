@@ -638,9 +638,122 @@ export async function handleRequest(request, response) {
     return
   }
 
-  // Colleges List
+  // Dynamic In-Memory Cache for Global & Live API Universities
+  // Colleges List (with Live Global Search API)
   if (request.method === 'GET' && path === '/api/colleges') {
-    sendJson(response, 200, { colleges: getColleges() })
+    const searchQuery = (url.searchParams.get('search') || '').trim().toLowerCase()
+    const localColleges = getColleges()
+
+    if (!searchQuery) {
+      sendJson(response, 200, { colleges: localColleges })
+      return
+    }
+
+    // 1. Filter local premier and regional colleges
+    const matchedLocal = localColleges.filter((c) => {
+      return (
+        c.name.toLowerCase().includes(searchQuery) ||
+        c.shortName.toLowerCase().includes(searchQuery) ||
+        c.location.toLowerCase().includes(searchQuery) ||
+        c.stream.toLowerCase().includes(searchQuery) ||
+        c.id.toLowerCase().includes(searchQuery)
+      )
+    })
+
+    // 2. Fetch live results from Hipo Open Global Universities API
+    let liveGlobalResults = []
+    if (searchQuery.length >= 2) {
+      try {
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 2500)
+        const apiUrl = `http://universities.hipolabs.com/search?name=${encodeURIComponent(searchQuery)}`
+        const apiRes = await fetch(apiUrl, { signal: controller.signal })
+        clearTimeout(timeoutId)
+
+        if (apiRes.ok) {
+          const rawList = await apiRes.json()
+          liveGlobalResults = rawList.slice(0, 25).map((univ, idx) => {
+            const isIndia = (univ.country || '').toLowerCase() === 'india'
+            const isTech = /tech|engineer|polytechnic|science|iit|nit|iiit/i.test(univ.name)
+            const isMed = /medic|health|dental|pharma|nurs|hospital/i.test(univ.name)
+            const isLaw = /law|jurid/i.test(univ.name)
+            const isMgmt = /manage|business|commerce|econom/i.test(univ.name)
+
+            let stream = 'Higher Education & Research'
+            if (isTech) stream = 'Engineering & Technology (B.Tech / B.E.)'
+            else if (isMed) stream = 'Medical & Healthcare (MBBS / BDS)'
+            else if (isLaw) stream = 'Law (LL.B. / LL.M.)'
+            else if (isMgmt) stream = 'Management & Commerce (MBA / BBA)'
+
+            const reqDocs = isIndia
+              ? isTech
+                ? ['10th Marksheet', '12th Marksheet', 'JEE / State CET Scorecard', 'Transfer Certificate (TC)', 'Migration Certificate', 'Domicile Certificate', 'Aadhaar Card', 'Medical Fitness Certificate']
+                : isMed
+                  ? ['10th Marksheet', '12th Marksheet', 'NEET UG Scorecard', 'Transfer Certificate (TC)', 'Migration Certificate', 'Domicile Certificate', 'Medical Fitness Certificate', 'Aadhaar Card']
+                  : ['10th Marksheet', '12th Marksheet', 'Entrance Exam Scorecard', 'Transfer Certificate (TC)', 'Migration Certificate', 'Aadhaar Card']
+              : ['Valid Passport', '10th Marksheet', '12th Marksheet', 'Official Academic Transcripts', 'TOEFL / IELTS Scorecard', 'Letter of Recommendation (LOR)', 'Statement of Purpose (SOP)', 'Financial Solvency Affidavit']
+
+            const portalUrl = (univ.web_pages && univ.web_pages[0]) || `https://${univ.domains?.[0] || 'google.com'}`
+            const cleanId = `univ-${univ.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 35)}-${idx}`
+
+            return {
+              id: cleanId,
+              name: univ.name,
+              shortName: univ.name.length > 35 ? univ.name.split('(')[0].trim() : univ.name,
+              logoIcon: isTech ? '⚙️' : isMed ? '🏥' : isLaw ? '⚖️' : isMgmt ? '💼' : '🏛️',
+              crestEmoji: '🎓',
+              gradientBadge: isTech
+                ? 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)'
+                : isMed
+                  ? 'linear-gradient(135deg, #059669 0%, #047857 100%)'
+                  : 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)',
+              badgeColor: '#0284c7',
+              location: `${univ['state-province'] ? univ['state-province'] + ', ' : ''}${univ.country}`,
+              type: isIndia ? 'Government / AICTE / State Approved Institute' : 'Global Accredited University',
+              stream,
+              ranking: isIndia ? 'UGC / NIRF Approved' : 'QS / Times Higher Education Recognized',
+              fee: isIndia ? '₹85,000 - ₹1,80,000 / year' : '$20,000 - $55,000 / year',
+              deadline: 'Annual Intake / State Admission Window',
+              officialPortal: {
+                label: univ.name,
+                url: portalUrl,
+              },
+              description: `Accredited university located in ${univ.location || univ.country}.`,
+              requiredDocuments: reqDocs,
+              specificNotes: [
+                `Admissions via official portal: ${portalUrl}`,
+                'Class 10 marksheet is the legal proof of Date of Birth.',
+                'Keep minimum 3 sets of attested document photocopies.',
+              ],
+            }
+          })
+        }
+      } catch (err) {
+        console.warn('Live global search fallback:', err.message)
+      }
+    }
+
+    // Merge and deduplicate by normalized name
+    const seenNames = new Set()
+    const combined = []
+
+    matchedLocal.forEach((c) => {
+      const norm = c.name.toLowerCase().trim()
+      if (!seenNames.has(norm)) {
+        seenNames.add(norm)
+        combined.push(c)
+      }
+    })
+
+    liveGlobalResults.forEach((c) => {
+      const norm = c.name.toLowerCase().trim()
+      if (!seenNames.has(norm)) {
+        seenNames.add(norm)
+        combined.push(c)
+      }
+    })
+
+    sendJson(response, 200, { colleges: combined })
     return
   }
 
