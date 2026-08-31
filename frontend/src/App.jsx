@@ -212,8 +212,11 @@ export default function App() {
       })
 
       if (response.ok) {
-        const data = await response.json()
-        setDocuments(data.documents)
+        const docsRes = await fetch(`${API_URL}/api/user/documents`)
+        if (docsRes.ok) {
+          const docsData = await docsRes.json()
+          setDocuments(docsData.documents || [])
+        }
       } else {
         const newDoc = {
           ...docPayload,
@@ -244,8 +247,11 @@ export default function App() {
         method: 'DELETE',
       })
       if (response.ok) {
-        const data = await response.json()
-        setDocuments(data.documents)
+        const docsRes = await fetch(`${API_URL}/api/user/documents`)
+        if (docsRes.ok) {
+          const docsData = await docsRes.json()
+          setDocuments(docsData.documents || [])
+        }
       } else {
         setDocuments((prev) => prev.filter((d) => d.id !== docId))
       }

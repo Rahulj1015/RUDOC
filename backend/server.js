@@ -1,32 +1,33 @@
 import http from 'node:http'
 import {
+  aadhaarCenters,
   colleges,
   demoUsers,
   documentEquivalents,
   documentGuides,
   services,
-  synthesizeCollege,
 } from './data.js'
+import {
+  addUser,
+  addUserDocument,
+  deleteUserDocument,
+  getAadhaarCenters,
+  getCollegeById,
+  getColleges,
+  getCurrentUser,
+  getDb,
+  getServiceById,
+  getServices,
+  getTasksForService,
+  getUserDocuments,
+  getUsers,
+  saveDb,
+  setCurrentUser,
+  setTasksForService,
+  updateTaskStatus,
+} from './db.js'
 
 const PORT = process.env.PORT || 4000
-const taskStore = new Map()
-
-// Active user and user document storage
-let currentUser = demoUsers[0]
-const userVaultStore = new Map()
-
-// Initialize demo users' vaults
-demoUsers.forEach((u) => {
-  userVaultStore.set(u.id, [...u.documents])
-})
-
-function getCurrentDocuments() {
-  return userVaultStore.get(currentUser.id) || []
-}
-
-function setCurrentDocuments(docs) {
-  userVaultStore.set(currentUser.id, docs)
-}
 
 function sendJson(response, statusCode, payload) {
   response.writeHead(statusCode, {
@@ -58,193 +59,224 @@ function readJsonBody(request) {
   })
 }
 
-// Levenshtein similarity calculation for name/text comparison
-function calculateStringSimilarity(str1, str2) {
-  if (!str1 || !str2) return 0
-  const s1 = str1.trim().toLowerCase()
-  const s2 = str2.trim().toLowerCase()
-  if (s1 === s2) return 100
+// Levenshtein Distance for Cross-Document Fuzzy Matching
+function levenshteinDistance(s1, s2) {
+  const a = s1.toLowerCase().trim()
+  const b = s2.toLowerCase().trim()
+  const dp = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0))
 
-  const track = Array(s2.length + 1).fill(null).map(() =>
-    Array(s1.length + 1).fill(null)
-  )
-  for (let i = 0; i <= s1.length; i += 1) track[0][i] = i
-  for (let j = 0; j <= s2.length; j += 1) track[j][0] = j
+  for (let i = 0; i <= a.length; i++) dp[i][0] = i
+  for (let j = 0; j <= b.length; j++) dp[0][j] = j
 
-  for (let j = 1; j <= s2.length; j += 1) {
-    for (let i = 1; i <= s1.length; i += 1) {
-      const indicator = s1[i - 1] === s2[j - 1] ? 0 : 1
-      track[j][i] = Math.min(
-        track[j][i - 1] + 1,
-        track[j - 1][i] + 1,
-        track[j - 1][i - 1] + indicator
-      )
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      if (a[i - 1] === b[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1]
+      } else {
+        dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1])
+      }
     }
   }
-
-  const distance = track[s2.length][s1.length]
-  const maxLength = Math.max(s1.length, s2.length)
-  return Math.max(0, Math.round(((maxLength - distance) / maxLength) * 100))
+  return dp[a.length][b.length]
 }
 
-// Audit cross-document consistency
+function calculateStringSimilarity(s1, s2) {
+  if (!s1 || !s2) return 0
+  if (s1.toLowerCase().trim() === s2.toLowerCase().trim()) return 100
+  const maxLen = Math.max(s1.length, s2.length)
+  if (maxLen === 0) return 100
+  const dist = levenshteinDistance(s1, s2)
+  const score = Math.max(0, Math.round(((maxLen - dist) / maxLen) * 100))
+  return score
+}
+
+function checkDocumentEquivalency(userDocName, requiredDocName) {
+  if (!userDocName || !requiredDocName) return false
+  const u = userDocName.toLowerCase().trim()
+  const r = requiredDocName.toLowerCase().trim()
+
+  if (u === r || u.includes(r) || r.includes(u)) return true
+
+  const alternatives = documentEquivalents[requiredDocName] || []
+  return alternatives.some((alt) => {
+    const a = alt.toLowerCase().trim()
+    return u === a || u.includes(a) || a.includes(u)
+  })
+}
+
+// Cross-Document Mismatch Audit
 function auditDocumentMismatches() {
+  const currentUser = getCurrentUser()
+  const userDocs = getUserDocuments()
   const issues = []
-  const userDocs = getCurrentDocuments()
-  const verifiedDocs = userDocs.filter((d) => d.holderName)
 
-  if (verifiedDocs.length < 2) {
-    return {
-      status: 'insufficient_documents',
-      overallScore: 100,
-      issues: [],
-      summary: 'Upload at least 2 documents with holder names to run automated cross-document audit.',
-    }
-  }
+  // Pairwise cross-audit for Name & DOB
+  for (let i = 0; i < userDocs.length; i++) {
+    for (let j = i + 1; j < userDocs.length; j++) {
+      const doc1 = userDocs[i]
+      const doc2 = userDocs[j]
 
-  for (let i = 0; i < verifiedDocs.length; i++) {
-    for (let j = i + 1; j < verifiedDocs.length; j++) {
-      const docA = verifiedDocs[i]
-      const docB = verifiedDocs[j]
-
-      const nameSimilarity = calculateStringSimilarity(docA.holderName, docB.holderName)
-      if (nameSimilarity < 100) {
-        issues.push({
-          type: 'NAME_MISMATCH',
-          severity: nameSimilarity < 75 ? 'HIGH' : 'MEDIUM',
-          similarity: nameSimilarity,
-          docA: { id: docA.id, name: docA.name, value: docA.holderName },
-          docB: { id: docB.id, name: docB.name, value: docB.holderName },
-          message: `Name differs between ${docA.name} ("${docA.holderName}") and ${docB.name} ("${docB.holderName}"). Match confidence: ${nameSimilarity}%.`,
-          recommendation: 'Ensure your name matches letter-for-letter with your 10th Marksheet or official ID before applying to prevent rejection.',
-        })
+      if (doc1.holderName && doc2.holderName) {
+        const nameSim = calculateStringSimilarity(doc1.holderName, doc2.holderName)
+        if (nameSim < 100) {
+          issues.push({
+            id: `issue-name-${doc1.id}-${doc2.id}`,
+            type: 'NAME_SPELLING_MISMATCH',
+            severity: nameSim < 75 ? 'HIGH' : 'MEDIUM',
+            docA: doc1.name,
+            docB: doc2.name,
+            valA: doc1.holderName,
+            valB: doc2.holderName,
+            similarityScore: nameSim,
+            message: `Name variation detected: "${doc1.holderName}" on ${doc1.name} vs "${doc2.holderName}" on ${doc2.name} (${nameSim}% match).`,
+            advice:
+              nameSim < 85
+                ? 'High risk of rejection in JoSAA/CSAS/UPSC! Obtain an official One-and-the-Same Person Notary Affidavit or apply for an Aadhaar demographic correction before final admission counselling.'
+                : 'Minor spelling variation. Carry an attested affidavit or self-declaration proforma to the reporting center.',
+          })
+        }
       }
 
-      if (docA.dob && docB.dob && docA.dob !== docB.dob) {
+      if (doc1.dob && doc2.dob && doc1.dob !== doc2.dob) {
         issues.push({
+          id: `issue-dob-${doc1.id}-${doc2.id}`,
           type: 'DOB_MISMATCH',
-          severity: 'HIGH',
-          similarity: 0,
-          docA: { id: docA.id, name: docA.name, value: docA.dob },
-          docB: { id: docB.id, name: docB.name, value: docB.dob },
-          message: `Date of Birth mismatch between ${docA.name} (${docA.dob}) and ${docB.name} (${docB.dob}).`,
-          recommendation: 'DOB must be identical across all documents. 10th Marksheet DOB is considered definitive by most portals.',
+          severity: 'CRITICAL',
+          docA: doc1.name,
+          docB: doc2.name,
+          valA: doc1.dob,
+          valB: doc2.dob,
+          similarityScore: 0,
+          message: `Conflicting Date of Birth: ${doc1.dob} on ${doc1.name} vs ${doc2.dob} on ${doc2.name}.`,
+          advice:
+            'Critical discrepancy! 10th Marksheet is universally treated as the sole benchmark for Date of Birth. Immediately update your Aadhaar card online via myaadhaar.uidai.gov.in using your 10th marksheet.',
         })
       }
     }
   }
 
-  const highCount = issues.filter((i) => i.severity === 'HIGH').length
-  const medCount = issues.filter((i) => i.severity === 'MEDIUM').length
-  const overallScore = Math.max(0, 100 - (highCount * 35 + medCount * 15))
+  const overallScore = Math.max(0, 100 - issues.reduce((acc, iss) => acc + (iss.severity === 'CRITICAL' ? 35 : iss.severity === 'HIGH' ? 20 : 10), 0))
 
   return {
-    status: issues.length === 0 ? 'CLEAN' : highCount > 0 ? 'WARNING_HIGH' : 'WARNING_MEDIUM',
+    candidateName: currentUser?.name || 'Applicant',
+    totalDocumentsAudited: userDocs.length,
     overallScore,
+    status: overallScore === 100 ? 'CLEAN_VERIFIED' : overallScore >= 75 ? 'MINOR_WARNINGS' : 'ACTION_REQUIRED',
+    summary:
+      issues.length === 0
+        ? 'All vault documents are 100% consistent across candidate name and Date of Birth.'
+        : `Detected ${issues.length} potential identity inconsistencies that require affidavit or UIDAI correction before submission.`,
     issues,
-    summary: issues.length === 0
-      ? 'All documents are consistent. No spelling or DOB discrepancies detected.'
-      : `Found ${issues.length} potential discrepancy issues across your documents.`,
   }
 }
 
-function isDocumentFulfilled(requiredDocName) {
-  const equivalents = documentEquivalents[requiredDocName] || [requiredDocName]
-  const userDocs = getCurrentDocuments()
-  const matched = userDocs.find((userDoc) =>
-    equivalents.some(
-      (eq) =>
-        userDoc.name.toLowerCase().includes(eq.toLowerCase()) ||
-        eq.toLowerCase().includes(userDoc.name.toLowerCase())
-    )
-  )
-  return matched || null
-}
-
-function getMatchForService(serviceId) {
-  const service = services.find((item) => item.id === serviceId)
-  if (!service) return null
-
-  const availableDocuments = []
-  const missingDocuments = []
-
-  for (const reqDoc of service.requiredDocuments) {
-    const matchedUserDoc = isDocumentFulfilled(reqDoc)
-    if (matchedUserDoc) {
-      availableDocuments.push({
-        name: reqDoc,
-        matchedDocId: matchedUserDoc.id,
-        matchedDocName: matchedUserDoc.name,
-        confidence: matchedUserDoc.confidence ?? 90,
-        status: matchedUserDoc.status ?? 'Verified',
-        guide: documentGuides[reqDoc] ?? documentGuides[matchedUserDoc.name] ?? null,
-      })
-    } else {
-      missingDocuments.push({
-        name: reqDoc,
-        guide: documentGuides[reqDoc] ?? null,
-      })
-    }
-  }
-
-  const completionPercentage = Math.round(
-    (availableDocuments.length / service.requiredDocuments.length) * 100
-  )
-
-  return {
-    service,
-    availableDocuments,
-    missingDocuments,
-    completionPercentage,
-    totalRequired: service.requiredDocuments.length,
-    totalAvailable: availableDocuments.length,
-    isReady: completionPercentage === 100,
-  }
-}
-
-// College Document Matcher (Supports pre-defined AND on-demand synthesized colleges)
+// Requirement Match for College
 function getMatchForCollege(collegeId) {
-  let college = colleges.find((item) => item.id === collegeId)
-  if (!college) {
-    // Synthesize any custom or dynamically searched college name
-    const rawQuery = collegeId.replace(/^dyn-/, '').replace(/-/g, ' ')
-    college = synthesizeCollege(rawQuery)
-  }
-
+  const college = getCollegeById(collegeId) || colleges[0]
+  const userDocs = getUserDocuments()
   const availableDocuments = []
   const missingDocuments = []
 
-  for (const reqDoc of college.requiredDocuments) {
-    const matchedUserDoc = isDocumentFulfilled(reqDoc)
+  college.requiredDocuments.forEach((reqDoc) => {
+    const matchedUserDoc = userDocs.find((uDoc) => checkDocumentEquivalency(uDoc.name, reqDoc))
     if (matchedUserDoc) {
       availableDocuments.push({
-        name: reqDoc,
-        matchedDocId: matchedUserDoc.id,
-        matchedDocName: matchedUserDoc.name,
-        confidence: matchedUserDoc.confidence ?? 90,
-        status: matchedUserDoc.status ?? 'Verified',
-        guide: documentGuides[reqDoc] ?? documentGuides[matchedUserDoc.name] ?? null,
+        requiredName: reqDoc,
+        userDocName: matchedUserDoc.name,
+        category: matchedUserDoc.category,
+        status: matchedUserDoc.status,
+        confidence: matchedUserDoc.confidence,
+        docNumber: matchedUserDoc.docNumber,
+        isEquivalentMatch: matchedUserDoc.name.toLowerCase() !== reqDoc.toLowerCase(),
       })
     } else {
       missingDocuments.push({
         name: reqDoc,
-        guide: documentGuides[reqDoc] ?? null,
+        guide: documentGuides[reqDoc] || {
+          priority: 'Medium',
+          difficulty: 'Medium',
+          source: 'College Administration or State Revenue Portal',
+          timeline: '3-7 Days',
+          cost: 'Standard fee',
+          link: college.officialPortal.url,
+          nextStep: `Arrange official verified copy of ${reqDoc} before reporting.`,
+        },
       })
     }
-  }
+  })
 
-  const completionPercentage = Math.round(
-    (availableDocuments.length / college.requiredDocuments.length) * 100
-  )
+  const total = college.requiredDocuments.length
+  const completionPercentage = total > 0 ? Math.round((availableDocuments.length / total) * 100) : 0
 
   return {
-    college,
+    collegeId: college.id,
+    collegeName: college.name,
+    shortName: college.shortName,
+    stream: college.stream,
+    officialPortal: college.officialPortal,
+    totalRequired: total,
+    matchedCount: availableDocuments.length,
+    missingCount: missingDocuments.length,
+    completionPercentage,
     availableDocuments,
     missingDocuments,
+    specificNotes: college.specificNotes || [],
+    generatedAt: new Date().toISOString(),
+  }
+}
+
+// Requirement Match for Govt Service
+function getMatchForService(serviceId) {
+  const service = getServiceById(serviceId) || services[0]
+  const userDocs = getUserDocuments()
+  const availableDocuments = []
+  const missingDocuments = []
+
+  service.requiredDocuments.forEach((reqDoc) => {
+    const matchedUserDoc = userDocs.find((uDoc) => checkDocumentEquivalency(uDoc.name, reqDoc))
+    if (matchedUserDoc) {
+      availableDocuments.push({
+        requiredName: reqDoc,
+        userDocName: matchedUserDoc.name,
+        category: matchedUserDoc.category,
+        status: matchedUserDoc.status,
+        confidence: matchedUserDoc.confidence,
+        docNumber: matchedUserDoc.docNumber,
+        isEquivalentMatch: matchedUserDoc.name.toLowerCase() !== reqDoc.toLowerCase(),
+      })
+    } else {
+      missingDocuments.push({
+        name: reqDoc,
+        guide: documentGuides[reqDoc] || {
+          priority: 'Medium',
+          difficulty: 'Medium',
+          source: 'Relevant Issuing Authority',
+          timeline: '3-7 Days',
+          cost: 'Standard fee',
+          link: service.officialPortal.url,
+          nextStep: `Procure ${reqDoc} from the designated government counter or online portal.`,
+        },
+      })
+    }
+  })
+
+  const total = service.requiredDocuments.length
+  const completionPercentage = total > 0 ? Math.round((availableDocuments.length / total) * 100) : 0
+
+  return {
+    serviceId: service.id,
+    serviceTitle: service.title,
+    category: service.category,
+    officialPortal: service.officialPortal,
+    totalRequired: total,
+    matchedCount: availableDocuments.length,
+    missingCount: missingDocuments.length,
     completionPercentage,
-    totalRequired: college.requiredDocuments.length,
-    totalAvailable: availableDocuments.length,
-    isReady: completionPercentage === 100,
+    availableDocuments,
+    missingDocuments,
+    steps: service.steps || [],
+    commonPitfalls: service.commonPitfalls || [],
+    generatedAt: new Date().toISOString(),
   }
 }
 
@@ -252,162 +284,151 @@ function createTasksForService(serviceId) {
   const match = getMatchForService(serviceId)
   if (!match) return null
 
-  const existing = taskStore.get(serviceId)
-  const existingMap = new Map((existing?.tasks || []).map((t) => [t.document, t.status]))
+  const tasks = match.missingDocuments.map((doc, idx) => ({
+    id: `task-${serviceId}-${idx + 1}`,
+    docName: doc.name,
+    priority: doc.guide?.priority || 'Medium',
+    status: 'Not Started',
+    source: doc.guide?.source || 'Designated Office',
+    timeline: doc.guide?.timeline || '3-5 Days',
+    cost: doc.guide?.cost || '₹50 - ₹200',
+    link: doc.guide?.link || '#',
+    nextStep: doc.guide?.nextStep || 'Apply at earliest to prevent admission rejection.',
+  }))
 
   const taskList = {
     serviceId,
-    serviceTitle: match.service.title,
-    tasks: match.missingDocuments.map((doc, index) => ({
-      id: `${serviceId}-task-${index + 1}`,
-      title: `Obtain ${doc.name}`,
-      document: doc.name,
-      status: existingMap.get(doc.name) || 'Not Started',
-      priority: doc.guide?.priority ?? 'Medium',
-      source: doc.guide?.source ?? 'Official portal',
-      reason: doc.guide?.purpose ?? `${doc.name} is mandatory for ${match.service.title}.`,
-      nextStep: doc.guide?.howToGet ?? 'Check the official service portal for accepted format instructions.',
-    })),
+    serviceTitle: match.serviceTitle,
+    generatedAt: new Date().toISOString(),
+    tasks,
   }
 
-  taskStore.set(serviceId, taskList)
+  setTasksForService(serviceId, taskList)
   return taskList
 }
 
-// Robust, Intelligent AI Assistant Engine
+// Multi-Mode AI Agent Intelligence
 function generateAIResponse(query) {
-  const q = (query || '').toLowerCase().replace(/[^\w\s]/gi, ' ')
+  const q = (query || '').toLowerCase().trim()
+  const userDocs = getUserDocuments()
+  const userDocNames = userDocs.map((d) => d.name)
 
-  // 1. App Navigation / Location queries
-  if (q.includes('where') || q.includes('kaha') || q.includes('find') || q.includes('section') || q.includes('locate') || q.includes('kisme')) {
-    if (q.includes('adhar') || q.includes('aadhaar') || q.includes('aadhar')) {
+  // 1. App Section Navigation Intent
+  if (q.includes('where is') || q.includes('how to find') || q.includes('go to') || q.includes('show me')) {
+    if (q.includes('college') || q.includes('university') || q.includes('institute') || q.includes('admission') || q.includes('iit') || q.includes('dy patil')) {
       return {
-        answer: `📍 **Here is where you can find Aadhaar in RUDOC:**
-
-1. **Govt & ID Services Tab:** Check the *"Aadhaar Name / DOB / Address Update"* card for required documents, update steps, fees, and the official UIDAI portal link.
-2. **Document Vault Tab:** View your uploaded Aadhaar card, check its verification status, or upload a new scan.
-3. **Mismatch Checker Tab:** Compare your Aadhaar name against your 10th Marksheet to detect spelling typos.`,
-        actionTab: 'services',
-        actionLabel: '👉 Open Govt & ID Services Tab',
-        relatedDocs: ['Aadhaar Card', '10th Marksheet'],
-        suggestedAction: 'Click the button below to jump straight to the Aadhaar section!',
-      }
-    }
-
-    if (q.includes('college') || q.includes('university') || q.includes('admission') || q.includes('iit') || q.includes('du') || q.includes('aiims') || q.includes('dy patil')) {
-      return {
-        answer: `📍 **You can find the College & University Section in the "College Admissions" tab in the left sidebar!**
-
-There you can:
-- Choose from 50+ institutes (Dr. D. Y. Patil, COEP, VJTI, IITs, DU, AIIMS, BITS, Symbiosis, NMIMS, MIT Pune, etc.).
-- Search ANY registered college in India to get instant verified document requirements, what you already have, and what affidavits to arrange.`,
+        answer: `🎓 **You can find all real universities in the "College Admissions" tab!**\n\nThere you can:\n- Explore 50+ real institutes (Dr. D. Y. Patil, COEP Tech, VJTI, IIT Bombay, AIIMS, BITS Pilani, Harvard, Oxford, etc.).\n- View exact mandatory document checklists, cutoff requirements, fees, deadlines, and official portal links.\n- Run live readiness matches against your current document vault.`,
         actionTab: 'colleges',
-        actionLabel: '👉 Go to College Admissions Tab',
+        actionLabel: '👉 Open College Admissions Tab',
         relatedDocs: ['10th Marksheet', '12th Marksheet', 'Transfer Certificate (TC)', 'Migration Certificate'],
-        suggestedAction: 'Click below to explore all colleges and institutes.',
+        suggestedAction: 'Click below to explore all colleges.',
       }
     }
 
-    if (q.includes('vault') || q.includes('doc') || q.includes('upload') || q.includes('my document')) {
+    if (q.includes('vault') || q.includes('document') || q.includes('my doc') || q.includes('upload') || q.includes('camera') || q.includes('scan')) {
       return {
-        answer: `📍 **Your personal documents are stored in the "Document Vault" tab!**
-
-You can:
-- View all your uploaded certificates (Aadhaar, PAN, 10th/12th marksheets, Income certificate, TC).
-- Check OCR confidence scores and issuing authority details.
-- Upload new documents or use 1-click test templates.`,
+        answer: `📁 **Your verified certificates and camera scanner are in the "Document Vault" tab!**\n\nFeatures:\n- Real Camera / Photo OCR scanner to extract text instantly into the vault.\n- Check OCR confidence scores and issuing authority records.\n- Delete or manage uploaded documents in real time.`,
         actionTab: 'vault',
         actionLabel: '👉 Open Document Vault',
         relatedDocs: ['Aadhaar Card', 'PAN Card', '10th Marksheet', '12th Marksheet'],
-        suggestedAction: 'Click below to enter your secure vault.',
+        suggestedAction: 'Click below to manage your vault documents.',
       }
     }
 
-    if (q.includes('mismatch') || q.includes('spelling') || q.includes('audit')) {
+    if (q.includes('mismatch') || q.includes('spelling') || q.includes('audit') || q.includes('dob error')) {
       return {
-        answer: `📍 **The "Mismatch Checker" tab runs automated spelling and DOB consistency audits across all your documents!**`,
+        answer: `🔍 **The "Mismatch Checker" tab runs automated Levenshtein spelling & DOB consistency audits!**\n\nIt flags:\n- Name spelling variations between 10th Marksheet and Aadhaar/PAN.\n- Conflicting Dates of Birth.\n- Actionable advice on required Notary Affidavits and UIDAI correction procedures.`,
         actionTab: 'mismatches',
         actionLabel: '👉 Go to Mismatch Checker',
         relatedDocs: ['10th Marksheet', 'Aadhaar Card', 'PAN Card'],
         suggestedAction: 'Click below to run a cross-document audit.',
       }
     }
-  }
 
-  // 2. Dr DY Patil & Maharashtra Engineering / Medical
-  if (q.includes('dy patil') || q.includes('dyp') || q.includes('dpu') || q.includes('coep') || q.includes('vjti') || q.includes('mht cet') || q.includes('pune')) {
-    return {
-      answer: `🏥 **Dr. D. Y. Patil Vidyapeeth (DPU) & Maharashtra Colleges Admission Checklist:**
-
-1. **Entrance Scorecards:** NEET UG (for MBBS/BDS via MCC Deemed Counselling) or MHT-CET / JEE Main (for B.Tech Engineering via State CET Cell / DPU AIET).
-2. **Academic Records:** 10th & 12th Board Marksheets & Passing Certificates.
-3. **Institutional Certificates:** Transfer Certificate (TC/SLC), Migration Certificate, and Character Certificate.
-4. **State Reservation:** Maharashtra Domicile Certificate, Caste Certificate, and Caste Validity Certificate (for reserved seats).
-5. **Affidavits:** Notary Gap Year Affidavit on ₹100 stamp paper for droppers & Anti-Ragging undertaking.`,
-      actionTab: 'colleges',
-      actionLabel: '👉 View Dr. D. Y. Patil Profile in College Tab',
-      relatedDocs: ['NEET UG Scorecard & Admit Card', 'JEE Main Scorecard', 'Transfer Certificate (TC)', 'Domicile', 'Gap Year Affidavit'],
-      suggestedAction: 'Open the College Admissions tab to see DY Patil Vidyapeeth and COEP Tech!',
+    if (q.includes('task') || q.includes('checklist') || q.includes('todo') || q.includes('plan')) {
+      return {
+        answer: `✅ **The "Action Checklist" tab tracks your missing document procurement plan!**\n\nIt provides prioritized action items (High/Medium/Low), timeline estimates, and direct portal links.`,
+        actionTab: 'tasks',
+        actionLabel: '👉 View Action Checklist',
+        relatedDocs: ['Transfer Certificate (TC)', 'Migration Certificate', 'Gap Year Affidavit'],
+        suggestedAction: 'Click below to view your procurement roadmap.',
+      }
     }
   }
 
-  // 3. UPSC / Civil Services
+  // 2. Dr. D. Y. Patil & Maharashtra Admissions
+  if (q.includes('dy patil') || q.includes('dpu') || q.includes('dyp') || q.includes('akurdi') || q.includes('pimpri') || q.includes('coep') || q.includes('vjti')) {
+    return {
+      answer: `🏥 **Dr. D. Y. Patil Vidyapeeth (DPU) & Maharashtra Colleges Admission Guide:**\n\n1. **Entrance Scorecards:** NEET UG (for MBBS/BDS via MCC Deemed University counselling) or MHT-CET / JEE Main (for B.Tech Engineering via State CET Cell / DPU AIET).\n2. **Mandatory Academic Records:** Original 10th Marksheet (DOB benchmark) & 12th Board Marksheet.\n3. **Institutional Certificates:** Transfer Certificate (TC/SLC) & Migration Certificate from last attended junior college.\n4. **State Reservation:** Maharashtra Domicile Certificate, Caste Certificate, and Caste Validity Certificate (mandatory for backward class quotas).\n5. **Affidavits:** Notary Gap Year Affidavit on ₹100 stamp paper for droppers & Anti-Ragging undertaking.`,
+      actionTab: 'colleges',
+      actionLabel: '👉 View Dr. D. Y. Patil Profile in Colleges Tab',
+      relatedDocs: ['NEET UG Scorecard & Admit Card', 'JEE Main Scorecard', 'Transfer Certificate (TC)', 'Domicile', 'Gap Year Affidavit'],
+      suggestedAction: 'Open the College Admissions tab to see Dr. D. Y. Patil Vidyapeeth and COEP Tech!',
+    }
+  }
+
+  // 3. UPSC & Civil Services
   if (q.includes('upsc') || q.includes('ias') || q.includes('ips') || q.includes('civil service') || q.includes('daf')) {
     return {
-      answer: `🏛️ **UPSC Civil Services Examination (IAS/IPS) Document Checklist:**
-
-1. **Date of Birth Proof:** Matriculation (Class 10) Passing Certificate or Marksheet is the only accepted master proof.
-2. **Educational Qualification:** Degree Certificate or provisional passing certificate from a recognized university.
-3. **Category / Caste Certificate:** Central Govt format SC/ST/OBC-NCL/EWS certificate (OBC-NCL must be issued within the prescribed financial year before prelims cutoff).
-4. **Photo ID & Disability:** Valid Aadhaar / Voter ID / Passport and UDID certificate (for PwD candidates).`,
+      answer: `🏛️ **UPSC Civil Services Examination (IAS/IPS) Detailed Application Form (DAF) Checklist:**\n\n1. **Date of Birth Benchmark:** Matriculation (Class 10) Passing Certificate or Marksheet is the sole accepted legal proof of Date of Birth.\n2. **Degree Proof:** Official Graduation Degree Certificate or provisional passing certificate issued by university Registrar.\n3. **Category / Caste Certificate:** Central Government format SC/ST/OBC-NCL/EWS certificate (OBC-NCL must be issued within the prescribed financial year before prelims notification cutoff).\n4. **Identity Proof:** Valid Aadhaar Card, Passport, or Voter ID with 100% identical spelling.`,
       actionTab: 'services',
-      actionLabel: '👉 View UPSC Service Section',
+      actionLabel: '👉 View UPSC Civil Services Details',
       relatedDocs: ['10th Marksheet', 'Graduation Degree / Passing Certificate', 'Category / EWS Certificate', 'Aadhaar Card'],
       suggestedAction: 'Match your vault against the UPSC Civil Services requirement checklist!',
     }
   }
 
-  // 4. Aadhaar & PAN Questions
-  if (q.includes('adhar') || q.includes('aadhaar') || q.includes('aadhar') || q.includes('uidai')) {
+  // 4. Aadhaar Centers & Corrections
+  if (q.includes('aadhaar') || q.includes('adhar') || q.includes('uidai') || q.includes('ask') || q.includes('kendra')) {
     return {
-      answer: `🆔 **Aadhaar Card Guide & Demographic Update:**
-
-- **Official Portal:** \`myaadhaar.uidai.gov.in\`
-- **Fee:** ₹50 for online update / ₹100 at Aadhaar Seva Kendra.
-- **Documents Accepted for Name Update:** Passport, PAN Card, Voter ID, Driving Licence, or 10th Marksheet.
-- **Documents Accepted for DOB Update:** 10th Class Marksheet / Passing Certificate or Birth Certificate.
-- **Important Note:** You are allowed only **2 lifetime name updates** without Gazette notification, so ensure zero typos!`,
+      answer: `🆔 **Aadhaar Demographic Update & Seva Kendra Locator:**\n\n- **Online Portal:** \`myaadhaar.uidai.gov.in\` (Fee: ₹50)\n- **Physical Kendra (ASK):** ₹100 for biometric & name updates.\n- **Accepted for Name Update:** Passport, PAN Card, Voter ID, Driving Licence, or 10th Marksheet.\n- **Accepted for DOB Update:** 10th Class Marksheet / Passing Certificate or Birth Certificate.\n- **Important Limitation:** You are permitted only **2 lifetime name updates** without a Gazette notification.`,
       actionTab: 'services',
-      actionLabel: '👉 Open Aadhaar Update Section',
+      actionLabel: '👉 View Aadhaar Seva Kendra Directory',
       relatedDocs: ['Aadhaar Card', '10th Marksheet', 'PAN Card'],
       suggestedAction: 'Check your Mismatch Checker tab to ensure your Aadhaar name matches your 10th marksheet.',
     }
   }
 
-  // Fallback with rich helpful suggestions
-  return {
-    answer: `🤖 **Hello! I am your RUDOC AI Document Co-Pilot.**
+  // 5. Global Universities (Harvard, MIT, Oxford, Stanford)
+  if (q.includes('harvard') || q.includes('mit') || q.includes('oxford') || q.includes('stanford') || q.includes('study abroad') || q.includes('ielts') || q.includes('toefl')) {
+    return {
+      answer: `🌍 **International Admissions (Harvard, MIT, Oxford, Stanford) Document Checklist:**\n\n1. **Valid Indian Passport:** Must have at least 6 months validity beyond your intended course start date.\n2. **Standardized Test Scores:** SAT / ACT (Undergrad) or GRE / GMAT (Postgrad) + TOEFL / IELTS / Duolingo English Proficiency.\n3. **Academic Transcripts:** Certified English copies of 10th & 12th Board marksheets.\n4. **Recommendation Letters (LOR):** 2 Teacher evaluations and 1 Counselor evaluation.\n5. **Personal Essay & SOP:** Statement of Purpose highlighting academic curiosity and extracurricular achievements.\n6. **Financial Solvency:** Bank Solvency Certificate and Sponsor Affidavit for student visa (I-20 / CAS).`,
+      actionTab: 'colleges',
+      actionLabel: '👉 Explore Global Universities (Harvard / MIT / Oxford)',
+      relatedDocs: ['Valid Passport', 'TOEFL / IELTS Scorecard', 'Letter of Recommendation (LOR)', 'Statement of Purpose (SOP)', 'Financial Solvency Affidavit'],
+      suggestedAction: 'Open the College Admissions tab to view Harvard and Oxford requirements!',
+    }
+  }
 
-I can assist you with:
-1. **Navigating Sections:** Ask *"Where is Aadhaar section?"* or *"Where is College Admissions?"*
-2. **Any College in India:** Ask *"What documents for Dr. D. Y. Patil / IIT Bombay / DU / AIIMS / BITS?"*
-3. **Competitive Exams:** Ask *"What documents are needed for UPSC DAF, NEET, or JoSAA?"*
-4. **Fixing Mismatches:** Ask *"How to fix Aadhaar name spelling mismatch?"*
-5. **Certificates & Affidavits:** Ask about *Gap year affidavit, Transfer Certificate (TC), Migration, or Income Certificate validity.*`,
+  // 6. Name / DOB Mismatch Fixes
+  if (q.includes('mismatch') || q.includes('spelling') || q.includes('affidavit') || q.includes('differ') || q.includes('kumar')) {
+    return {
+      answer: `⚖️ **How to Fix Name & DOB Discrepancies Before Admission Submission:**\n\n1. **The 10th Marksheet Rule:** In Indian admissions (IITs, DU, AIIMS, UPSC), the name and DOB on your Class 10 certificate are treated as the absolute benchmark.\n2. **If Aadhaar differs from 10th Marksheet:** Update Aadhaar online via \`myaadhaar.uidai.gov.in\` using scanned Class 10 marksheet (Takes 3-5 days).\n3. **If Surname / Initial differs (e.g. Rahul Kr vs Rahul Kumar):** Obtain a **One-and-the-Same Person Affidavit** drafted on ₹100 non-judicial stamp paper from a local Notary public.\n4. **If Name was legally changed:** Submit a copy of the official Central / State Government Gazette Notification along with two local newspaper advertisements.`,
+      actionTab: 'mismatches',
+      actionLabel: '👉 Run Live Mismatch Audit',
+      relatedDocs: ['10th Marksheet', 'Aadhaar Card', 'PAN Card'],
+      suggestedAction: 'Go to Mismatch Checker to see consistency confidence scores for your vault documents.',
+    }
+  }
+
+  // 7. General Assistant Fallback
+  return {
+    answer: `🤖 **Hello! I am your RUDOC Intelligent Document & Admission Co-Pilot.**\n\nI can help you with:\n1. **Real Colleges & Universities:** Ask about *Dr. D. Y. Patil, COEP Tech, VJTI, IIT Bombay, DU CSAS, AIIMS, BITS, Harvard, or Oxford*.\n2. **Competitive Exams & UPSC:** Ask about *UPSC Civil Services DAF, JEE JoSAA, NEET MCC, or CAT*.\n3. **Government Services & Aadhaar:** Ask about *Aadhaar Seva Kendra locator, Passport Tatkaal, or PAN-Aadhaar linkage*.\n4. **Mismatch Auditing:** Ask *"How to fix Aadhaar name spelling mismatch?"* or *"What is Gap Year affidavit format?"*\n5. **Camera & OCR:** Upload or snap documents directly in the Document Vault.`,
     actionTab: 'colleges',
-    actionLabel: '👉 Explore College Admissions Tab',
+    actionLabel: '👉 Explore College Directory',
     relatedDocs: ['Aadhaar Card', '10th Marksheet', 'Transfer Certificate (TC)', 'Income Certificate'],
-    suggestedAction: 'Try asking: "Where is Aadhaar section?" or "What documents for Dr DY Patil?"',
+    suggestedAction: 'Try asking: "What documents are required for Dr. D. Y. Patil?" or "Where is Aadhaar section?"',
   }
 }
 
 function getOverview() {
-  const taskLists = [...taskStore.values()]
-  const tasks = taskLists.flatMap((taskList) => taskList.tasks)
-  const completedTasks = tasks.filter((task) => task.status === 'Completed')
-  const userDocs = getCurrentDocuments()
-  const reviewDocuments = userDocs.filter((doc) => doc.status === 'Needs Review')
+  const currentUser = getCurrentUser()
+  const userDocs = getUserDocuments()
   const audit = auditDocumentMismatches()
+  const db = getDb()
+  const taskLists = Object.values(db.taskStore || {})
+  const allTasks = taskLists.flatMap((tl) => tl.tasks || [])
+  const completedTasks = allTasks.filter((t) => t.status === 'Completed')
 
   return {
     profile: {
@@ -419,13 +440,13 @@ function getOverview() {
       goal: currentUser.goal,
     },
     stats: {
-      services: services.length,
-      colleges: colleges.length,
+      services: getServices().length,
+      colleges: getColleges().length,
+      aadhaarCenters: getAadhaarCenters().length,
       documents: userDocs.length,
       savedTaskLists: taskLists.length,
-      activeTasks: tasks.length - completedTasks.length,
+      activeTasks: allTasks.length - completedTasks.length,
       completedTasks: completedTasks.length,
-      reviewDocuments: reviewDocuments.length,
       auditScore: audit.overallScore,
       auditIssuesCount: audit.issues.length,
     },
@@ -445,11 +466,12 @@ export async function handleRequest(request, response) {
 
   // Health
   if (request.method === 'GET' && path === '/api/health') {
+    const user = getCurrentUser()
     sendJson(response, 200, {
       ok: true,
-      app: 'RUDOC API',
-      version: '1.6.0',
-      currentUser: currentUser.name,
+      app: 'RUDOC Flagship API',
+      version: '2.0.0',
+      currentUser: user ? user.name : 'Guest',
       timestamp: new Date().toISOString(),
     })
     return
@@ -457,13 +479,15 @@ export async function handleRequest(request, response) {
 
   // Auth: Users List
   if (request.method === 'GET' && path === '/api/auth/users') {
+    const users = getUsers()
+    const currentUser = getCurrentUser()
     sendJson(response, 200, {
-      users: demoUsers.map((u) => ({
+      users: users.map((u) => ({
         id: u.id,
         name: u.name,
         email: u.email,
         role: u.role,
-        docsCount: (userVaultStore.get(u.id) || []).length,
+        docsCount: (u.documents || []).length,
       })),
       currentUser,
     })
@@ -474,25 +498,20 @@ export async function handleRequest(request, response) {
   if (request.method === 'POST' && path === '/api/auth/login') {
     try {
       const body = await readJsonBody(request)
-      const found = demoUsers.find((u) => u.email === body.email || u.id === body.userId)
+      const users = getUsers()
+      const found = users.find((u) => u.email === body.email || u.id === body.userId)
       if (found) {
-        currentUser = found
-        sendJson(response, 200, { success: true, user: currentUser })
+        setCurrentUser(found.id)
+        sendJson(response, 200, { success: true, user: found })
       } else {
-        const newUser = {
-          id: `user-${Date.now()}`,
-          name: body.name || body.email.split('@')[0],
-          email: body.email,
+        const newUser = addUser({
+          name: body.name || (body.email ? body.email.split('@')[0] : 'Applicant'),
+          email: body.email || 'applicant@example.com',
           role: 'Registered Applicant',
-          dob: body.dob || '2004-01-01',
-          fatherName: '',
+          dob: body.dob || '2004-05-14',
           goal: 'College & Government Document Readiness',
-          documents: [],
-        }
-        demoUsers.push(newUser)
-        userVaultStore.set(newUser.id, [])
-        currentUser = newUser
-        sendJson(response, 200, { success: true, user: currentUser })
+        })
+        sendJson(response, 200, { success: true, user: newUser })
       }
     } catch {
       sendJson(response, 400, { error: 'Invalid login request' })
@@ -504,33 +523,68 @@ export async function handleRequest(request, response) {
   if (request.method === 'POST' && path === '/api/auth/register') {
     try {
       const body = await readJsonBody(request)
-      const newUser = {
-        id: `user-${Date.now()}`,
+      const newUser = addUser({
         name: body.name || 'New Applicant',
         email: body.email || 'user@example.com',
         role: 'Applicant',
-        dob: body.dob || '2004-01-01',
+        dob: body.dob || '2004-05-14',
         fatherName: body.fatherName || '',
         goal: body.goal || 'Prepare admissions and identity documents',
-        documents: [],
-      }
-      demoUsers.push(newUser)
-      userVaultStore.set(newUser.id, [])
-      currentUser = newUser
-      sendJson(response, 201, { success: true, user: currentUser })
+      })
+      sendJson(response, 201, { success: true, user: newUser })
     } catch {
       sendJson(response, 400, { error: 'Invalid register payload' })
     }
     return
   }
 
-  // Colleges List
-  if (request.method === 'GET' && path === '/api/colleges') {
-    sendJson(response, 200, { colleges })
+  // User Documents: Get
+  if (request.method === 'GET' && path === '/api/user/documents') {
+    const docs = getUserDocuments()
+    sendJson(response, 200, {
+      documents: docs,
+      profile: getCurrentUser(),
+    })
     return
   }
 
-  // College Matching (with dynamic fallback for ANY searched university)
+  // User Documents: Add (with OCR support)
+  if (request.method === 'POST' && path === '/api/user/documents') {
+    try {
+      const body = await readJsonBody(request)
+      if (!body.name) {
+        sendJson(response, 400, { error: 'Document name is required' })
+        return
+      }
+      const currentUser = getCurrentUser()
+      const newDoc = addUserDocument(currentUser.id, body)
+      sendJson(response, 201, { success: true, document: newDoc })
+    } catch {
+      sendJson(response, 400, { error: 'Invalid document upload payload' })
+    }
+    return
+  }
+
+  // User Documents: Delete
+  if (request.method === 'DELETE' && path.startsWith('/api/user/documents/')) {
+    const docId = path.replace('/api/user/documents/', '')
+    const currentUser = getCurrentUser()
+    const ok = deleteUserDocument(currentUser.id, docId)
+    if (ok) {
+      sendJson(response, 200, { success: true, message: 'Document removed from vault' })
+    } else {
+      sendJson(response, 404, { error: 'Document not found' })
+    }
+    return
+  }
+
+  // Colleges List
+  if (request.method === 'GET' && path === '/api/colleges') {
+    sendJson(response, 200, { colleges: getColleges() })
+    return
+  }
+
+  // College Matching
   if (request.method === 'GET' && path.startsWith('/api/colleges/') && path.endsWith('/match')) {
     const collegeId = decodeURIComponent(path.replace('/api/colleges/', '').replace('/match', ''))
     const match = getMatchForCollege(collegeId)
@@ -538,21 +592,15 @@ export async function handleRequest(request, response) {
     return
   }
 
-  // AI Assistant Chatbot
-  if (request.method === 'POST' && path === '/api/assistant/chat') {
-    try {
-      const body = await readJsonBody(request)
-      const reply = generateAIResponse(body.query || '')
-      sendJson(response, 200, { success: true, ...reply })
-    } catch {
-      sendJson(response, 400, { error: 'Invalid query payload' })
-    }
+  // Services List
+  if (request.method === 'GET' && path === '/api/services') {
+    sendJson(response, 200, { services: getServices() })
     return
   }
 
-  // Services
-  if (request.method === 'GET' && path === '/api/services') {
-    sendJson(response, 200, { services })
+  // Aadhaar Centers Directory
+  if (request.method === 'GET' && path === '/api/aadhaar-centers') {
+    sendJson(response, 200, { aadhaarCenters: getAadhaarCenters() })
     return
   }
 
@@ -568,64 +616,22 @@ export async function handleRequest(request, response) {
     return
   }
 
-  // User Documents
-  if (request.method === 'GET' && path === '/api/user/documents') {
-    sendJson(response, 200, {
-      profile: currentUser,
-      documents: getCurrentDocuments(),
-    })
-    return
-  }
-
-  // Add Document
-  if (request.method === 'POST' && path === '/api/user/documents') {
+  // AI Assistant Chatbot
+  if (request.method === 'POST' && path === '/api/assistant/chat') {
     try {
       const body = await readJsonBody(request)
-      if (!body.name) {
-        sendJson(response, 400, { error: 'Document name is required' })
-        return
-      }
-
-      const newDoc = {
-        id: `doc-${Date.now()}`,
-        name: body.name,
-        category: body.category || 'General',
-        status: body.status || 'Verified',
-        holderName: body.holderName || currentUser.name,
-        dob: body.dob || currentUser.dob,
-        docNumber: body.docNumber || `DOC-${Math.floor(1000 + Math.random() * 9000)}`,
-        issuer: body.issuer || 'Self Upload',
-        updatedAt: new Date().toISOString().split('T')[0],
-        confidence: body.confidence || 95,
-      }
-
-      const docs = getCurrentDocuments()
-      docs.push(newDoc)
-      setCurrentDocuments(docs)
-      sendJson(response, 201, { success: true, document: newDoc, documents: docs })
+      const reply = generateAIResponse(body.query || '')
+      sendJson(response, 200, { success: true, ...reply })
     } catch {
-      sendJson(response, 400, { error: 'Invalid JSON payload' })
+      sendJson(response, 400, { error: 'Invalid query payload' })
     }
     return
   }
 
-  // Delete Document
-  if (request.method === 'DELETE' && path.startsWith('/api/user/documents/')) {
-    const docId = decodeURIComponent(path.replace('/api/user/documents/', ''))
-    const filtered = getCurrentDocuments().filter((d) => d.id !== docId)
-    setCurrentDocuments(filtered)
-    sendJson(response, 200, { success: true, documents: filtered })
-    return
-  }
-
-  // Service Match
+  // Requirement Match for Service
   if (request.method === 'GET' && path.startsWith('/api/match/')) {
     const serviceId = decodeURIComponent(path.replace('/api/match/', ''))
     const match = getMatchForService(serviceId)
-    if (!match) {
-      sendJson(response, 404, { error: 'Service not found' })
-      return
-    }
     sendJson(response, 200, match)
     return
   }
@@ -645,7 +651,8 @@ export async function handleRequest(request, response) {
   // Get tasks
   if (request.method === 'GET' && path.startsWith('/api/tasks/')) {
     const serviceId = decodeURIComponent(path.replace('/api/tasks/', ''))
-    sendJson(response, 200, taskStore.get(serviceId) ?? createTasksForService(serviceId))
+    const existing = getTasksForService(serviceId)
+    sendJson(response, 200, existing || createTasksForService(serviceId))
     return
   }
 
@@ -654,24 +661,14 @@ export async function handleRequest(request, response) {
     const parts = path.split('/').filter(Boolean)
     const serviceId = decodeURIComponent(parts[2] ?? '')
     const taskId = decodeURIComponent(parts[3] ?? '')
-    const taskList = taskStore.get(serviceId)
-
-    if (!taskList) {
-      sendJson(response, 404, { error: 'Task list not found' })
-      return
-    }
 
     try {
       const body = await readJsonBody(request)
-      taskList.tasks = taskList.tasks.map((task) =>
-        task.id === taskId
-          ? {
-              ...task,
-              status: body.status ?? task.status,
-            }
-          : task
-      )
-      taskStore.set(serviceId, taskList)
+      const taskList = updateTaskStatus(serviceId, taskId, body.status)
+      if (!taskList) {
+        sendJson(response, 404, { error: 'Task list not found' })
+        return
+      }
       sendJson(response, 200, taskList)
     } catch {
       sendJson(response, 400, { error: 'Invalid JSON body' })
@@ -686,7 +683,7 @@ const server = http.createServer(handleRequest)
 
 if (!process.env.VERCEL) {
   server.listen(PORT, () => {
-    console.log(`RUDOC API running at http://127.0.0.1:${PORT}`)
+    console.log(`RUDOC Flagship API running at http://127.0.0.1:${PORT}`)
   })
 }
 

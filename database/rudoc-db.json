@@ -1,0 +1,1199 @@
+{
+  "version": "2.0.0",
+  "lastSaved": "2026-08-31T04:15:03.528Z",
+  "currentUserId": "user-rahul",
+  "users": [
+    {
+      "id": "user-rahul",
+      "name": "Rahul Sharma",
+      "email": "rahul.sharma@example.com",
+      "role": "Student / Engineering & UPSC Aspirant",
+      "dob": "2004-05-14",
+      "fatherName": "Rajesh Sharma",
+      "goal": "Prepare documents for B.Tech Admissions & UPSC Civil Services",
+      "documents": [
+        {
+          "id": "doc-aadhaar",
+          "name": "Aadhaar Card",
+          "category": "Identity",
+          "status": "Verified",
+          "holderName": "Rahul Sharma",
+          "dob": "2004-05-14",
+          "docNumber": "XXXX-XXXX-8912",
+          "issuer": "UIDAI (Govt of India)",
+          "updatedAt": "2026-08-18",
+          "confidence": 98,
+          "extractedText": "GOVERNMENT OF INDIA\nRahul Sharma\nDOB: 14/05/2004\nGender: MALE\nXXXX XXXX 8912\nVID: 9182 3819 2819 1928\nAddress: Flat 402, Shanti Heights, Pune, Maharashtra - 411038"
+        },
+        {
+          "id": "doc-pan",
+          "name": "PAN Card",
+          "category": "Identity",
+          "status": "Verified",
+          "holderName": "Rahul Sharma",
+          "dob": "2004-05-14",
+          "docNumber": "ABCPS1234F",
+          "issuer": "Income Tax Department",
+          "updatedAt": "2026-08-18",
+          "confidence": 96,
+          "extractedText": "INCOME TAX DEPARTMENT\nGOVT. OF INDIA\nPermanent Account Number Card\nABCPS1234F\nName: RAHUL SHARMA\nFather's Name: RAJESH SHARMA\nDate of Birth: 14/05/2004"
+        },
+        {
+          "id": "doc-marksheet-10",
+          "name": "10th Marksheet",
+          "category": "Education",
+          "status": "Verified",
+          "holderName": "Rahul Kumar Sharma",
+          "dob": "2004-05-14",
+          "docNumber": "CBSE-X-892110",
+          "issuer": "Central Board of Secondary Education (CBSE)",
+          "updatedAt": "2026-08-19",
+          "confidence": 94,
+          "extractedText": "CENTRAL BOARD OF SECONDARY EDUCATION\nSecondary School Examination (Class X) 2020\nRoll No: 892110\nCandidate Name: RAHUL KUMAR SHARMA\nMother's Name: SUNITA SHARMA\nFather's Name: RAJESH SHARMA\nDate of Birth: 14/05/2004\nResult: PASS (92.4%)"
+        },
+        {
+          "id": "doc-marksheet-12",
+          "name": "12th Marksheet",
+          "category": "Education",
+          "status": "Verified",
+          "holderName": "Rahul Sharma",
+          "dob": "2004-05-14",
+          "docNumber": "CBSE-XII-901124",
+          "issuer": "Central Board of Secondary Education (CBSE)",
+          "updatedAt": "2026-08-20",
+          "confidence": 96,
+          "extractedText": "CENTRAL BOARD OF SECONDARY EDUCATION\nSenior School Certificate Examination (Class XII) 2022\nRoll No: 901124\nCandidate Name: RAHUL SHARMA\nFather's Name: RAJESH SHARMA\nStream: Science (PCM with CS)\nResult: PASS (90.8%)"
+        },
+        {
+          "id": "doc-bank-passbook",
+          "name": "Bank Passbook",
+          "category": "Finance",
+          "status": "Needs Review",
+          "holderName": "Rahul Sharma",
+          "dob": "2004-05-14",
+          "docNumber": "SBIN0001234",
+          "issuer": "State Bank of India",
+          "updatedAt": "2026-08-20",
+          "confidence": 72,
+          "extractedText": "STATE BANK OF INDIA\nA/C No: 39102910291\nAccount Holder: Rahul Sharma\nBranch: Shivajinagar Pune\nIFSC: SBIN0001234\nAadhaar NPCI Seeding Status: Pending Confirmation"
+        }
+      ]
+    },
+    {
+      "id": "user-priya",
+      "name": "Priya Patel",
+      "email": "priya.patel@example.com",
+      "role": "Medical Aspirant (NEET / AIIMS / DY Patil)",
+      "dob": "2005-11-22",
+      "fatherName": "Kirit Patel",
+      "goal": "MBBS & Dental Admission Document Verification",
+      "documents": [
+        {
+          "id": "doc-priya-aadhaar",
+          "name": "Aadhaar Card",
+          "category": "Identity",
+          "status": "Verified",
+          "holderName": "Priya Patel",
+          "dob": "2005-11-22",
+          "docNumber": "XXXX-XXXX-4532",
+          "issuer": "UIDAI (Govt of India)",
+          "updatedAt": "2026-08-15",
+          "confidence": 99
+        },
+        {
+          "id": "doc-priya-10",
+          "name": "10th Marksheet",
+          "category": "Education",
+          "status": "Verified",
+          "holderName": "Priya Patel",
+          "dob": "2005-11-22",
+          "docNumber": "GSEB-X-33109",
+          "issuer": "Gujarat Secondary Board",
+          "updatedAt": "2026-08-16",
+          "confidence": 98
+        },
+        {
+          "id": "doc-priya-domicile",
+          "name": "Domicile Certificate",
+          "category": "Revenue & Certificate",
+          "status": "Verified",
+          "holderName": "Priya Patel",
+          "dob": "2005-11-22",
+          "docNumber": "DOM-GUJ-2026-9",
+          "issuer": "Mamlatdar Office / Gujarat e-Nagar",
+          "updatedAt": "2026-08-17",
+          "confidence": 92
+        }
+      ]
+    }
+  ],
+  "colleges": [
+    {
+      "id": "dr-dy-patil-vidyapeeth",
+      "name": "Dr. D. Y. Patil Vidyapeeth (DPU Pune & Navi Mumbai)",
+      "shortName": "Dr. D. Y. Patil Vidyapeeth",
+      "logoIcon": "🏥",
+      "crestEmoji": "🛡️",
+      "gradientBadge": "linear-gradient(135deg, #e11d48, #be123c)",
+      "badgeColor": "#e11d48",
+      "location": "Pimpri, Pune & Nerul, Navi Mumbai, Maharashtra",
+      "type": "Deemed-to-be University (NAAC A++ Accredited / Category 1 Autonomy)",
+      "stream": "Medical (MBBS/BDS), Engineering (B.Tech), Biotechnology & Management",
+      "ranking": "NIRF University Top 40 • NAAC A++ (3.64 CGPA)",
+      "fee": "₹1,50,000 - ₹25,00,000 / year (Medical/Engineering stream dependent)",
+      "deadline": "NEET MCC / MHT CET / DPU AIET 2026",
+      "officialPortal": {
+        "label": "DPU Official Admissions Portal",
+        "url": "https://dpu.edu.in"
+      },
+      "description": "World-class multidisciplinary university spanning medical colleges, hospitals, and engineering institutes in Pune and Mumbai.",
+      "requiredDocuments": [
+        "NEET UG Scorecard & Admit Card",
+        "JEE Main Scorecard",
+        "10th Marksheet",
+        "12th Marksheet",
+        "Aadhaar Card",
+        "Transfer Certificate (TC)",
+        "Migration Certificate",
+        "Domicile",
+        "Medical Fitness Certificate",
+        "Gap Year Affidavit",
+        "Passport Size Photograph"
+      ],
+      "specificNotes": [
+        "MBBS/BDS admissions strictly routed through Directorate General of Health Services (DGHS) / MCC Deemed University counselling.",
+        "B.Tech admissions available via MHT-CET State Quota and JEE Main Direct All India Seats.",
+        "Dropper students must submit Notary Gap Certificate on ₹100 stamp paper."
+      ]
+    },
+    {
+      "id": "dr-dy-patil-engg-pune",
+      "name": "Dr. D. Y. Patil College of Engineering (DYPCOE Akurdi / Pimpri)",
+      "shortName": "DY Patil College of Engineering",
+      "logoIcon": "⚙️",
+      "crestEmoji": "🏛️",
+      "gradientBadge": "linear-gradient(135deg, #0284c7, #0369a1)",
+      "badgeColor": "#0284c7",
+      "location": "Akurdi & Pimpri, Pune, Maharashtra",
+      "type": "Affiliated to Savitribai Phule Pune University (SPPU / NBA Accredited)",
+      "stream": "Engineering & Technology (B.Tech / M.Tech)",
+      "ranking": "Top Autonomous Private Engineering College in Pune",
+      "fee": "₹1,35,000 / year",
+      "deadline": "MHT CET CAP Round 1 - July 2026",
+      "officialPortal": {
+        "label": "DYPCOE Engineering Portal",
+        "url": "https://www.dypcoeakurdi.ac.in"
+      },
+      "description": "Premier technical campus in Pune renowned for Computer Engineering, AI & Data Science, Robotics, and core branches.",
+      "requiredDocuments": [
+        "MHT-CET Scorecard",
+        "JEE Main Scorecard",
+        "10th Marksheet",
+        "12th Marksheet",
+        "Aadhaar Card",
+        "Transfer Certificate (TC)",
+        "Migration Certificate",
+        "Domicile",
+        "Caste Certificate",
+        "Passport Size Photograph"
+      ],
+      "specificNotes": [
+        "Maharashtra State CET Cell CAP Allotment letter required for seat confirmation and scholarship claims.",
+        "Caste Validity Certificate strictly mandatory for Maharashtra SC/ST/OBC/VJNT/SEBC candidates."
+      ]
+    },
+    {
+      "id": "coep-pune",
+      "name": "COEP Technological University (College of Engineering Pune)",
+      "shortName": "COEP Tech University, Pune",
+      "logoIcon": "🏛️",
+      "crestEmoji": "📐",
+      "gradientBadge": "linear-gradient(135deg, #0d9488, #0f766e)",
+      "badgeColor": "#0d9488",
+      "location": "Shivajinagar, Pune, Maharashtra",
+      "type": "State Unitary Technological University (Estd. 1854)",
+      "stream": "Engineering & Technology (B.Tech / M.Tech)",
+      "ranking": "NIRF Engineering Top 50 • Asia’s 3rd Oldest Technical Institute",
+      "fee": "₹95,000 / year",
+      "deadline": "MHT-CET CAP 2026",
+      "officialPortal": {
+        "label": "COEP Tech Admissions Portal",
+        "url": "https://www.coep.org.in"
+      },
+      "description": "Legendary state university producing top engineers and innovators with high MHT-CET cutoff percentiles (99.5%+).",
+      "requiredDocuments": [
+        "MHT-CET Scorecard",
+        "10th Marksheet",
+        "12th Marksheet",
+        "Aadhaar Card",
+        "Domicile",
+        "Transfer Certificate (TC)",
+        "Migration Certificate",
+        "Caste Certificate",
+        "Medical Fitness Certificate"
+      ],
+      "specificNotes": [
+        "Admission strictly through Maharashtra State CET Cell centralized counselling on merit."
+      ]
+    },
+    {
+      "id": "vjti-mumbai",
+      "name": "Veermata Jijabai Technological Institute (VJTI Mumbai)",
+      "shortName": "VJTI Mumbai",
+      "logoIcon": "⚡",
+      "crestEmoji": "⚙️",
+      "gradientBadge": "linear-gradient(135deg, #8b5cf6, #7c3aed)",
+      "badgeColor": "#8b5cf6",
+      "location": "Matunga, Mumbai, Maharashtra",
+      "type": "Premier Autonomous Government-Aided Institute (Estd. 1887)",
+      "stream": "Engineering & Technology",
+      "ranking": "NIRF Top State Engineering • Grade A+",
+      "fee": "₹85,000 / year",
+      "deadline": "MHT-CET CAP 2026",
+      "officialPortal": {
+        "label": "VJTI Admissions Portal",
+        "url": "https://vjti.ac.in"
+      },
+      "description": "Top engineering college in Mumbai known for high-tier campus recruitment and rigorous academic standards.",
+      "requiredDocuments": [
+        "MHT-CET Scorecard",
+        "10th Marksheet",
+        "12th Marksheet",
+        "Aadhaar Card",
+        "Domicile",
+        "Transfer Certificate (TC)",
+        "Migration Certificate",
+        "Caste Certificate"
+      ],
+      "specificNotes": [
+        "Maharashtra Domicile Certificate (Type A/B/C/D) mandatory for 85% Home State Quota."
+      ]
+    },
+    {
+      "id": "iit-bombay",
+      "name": "Indian Institute of Technology Bombay (IIT Bombay)",
+      "shortName": "IIT Bombay",
+      "logoIcon": "🏛️",
+      "crestEmoji": "🛡️",
+      "gradientBadge": "linear-gradient(135deg, #0284c7, #0369a1)",
+      "badgeColor": "#0284c7",
+      "location": "Powai, Mumbai, Maharashtra",
+      "type": "Institute of National Importance (INI)",
+      "stream": "Engineering, Sciences & Design",
+      "ranking": "NIRF Engineering #1 • QS World Rank #118",
+      "fee": "₹1,15,000 / semester",
+      "deadline": "JoSAA Counselling Round 1 - June 2026",
+      "officialPortal": {
+        "label": "JoSAA / IIT Bombay Admissions",
+        "url": "https://josaa.nic.in"
+      },
+      "description": "India’s most sought-after technical institute admitting the top JEE Advanced rankers.",
+      "requiredDocuments": [
+        "JEE Advanced Scorecard",
+        "10th Marksheet",
+        "12th Marksheet",
+        "Aadhaar Card",
+        "Transfer Certificate (TC)",
+        "Migration Certificate",
+        "Medical Fitness Certificate",
+        "Category / EWS Certificate",
+        "Anti-Ragging Affidavit",
+        "Passport Size Photograph"
+      ],
+      "specificNotes": [
+        "Central format OBC-NCL / Gen-EWS certificate must be issued on or after April 1, 2026.",
+        "Medical certificate must be signed strictly on official JoSAA Annexure 7 format by Registered Medical Practitioner."
+      ]
+    },
+    {
+      "id": "iit-delhi",
+      "name": "Indian Institute of Technology Delhi (IIT Delhi)",
+      "shortName": "IIT Delhi",
+      "logoIcon": "🏛️",
+      "crestEmoji": "⚡",
+      "gradientBadge": "linear-gradient(135deg, #0284c7, #1d4ed8)",
+      "badgeColor": "#0284c7",
+      "location": "Hauz Khas, New Delhi",
+      "type": "Institute of National Importance (INI)",
+      "stream": "Engineering, Computing, AI & Data Science",
+      "ranking": "NIRF Engineering #2",
+      "fee": "₹1,18,000 / semester",
+      "deadline": "JoSAA Counselling - June 2026",
+      "officialPortal": {
+        "label": "IIT Delhi Admissions",
+        "url": "https://home.iitd.ac.in"
+      },
+      "description": "Premier capital engineering and research institute admitting top JEE Advanced candidates.",
+      "requiredDocuments": [
+        "JEE Advanced Scorecard",
+        "10th Marksheet",
+        "12th Marksheet",
+        "Aadhaar Card",
+        "Transfer Certificate (TC)",
+        "Migration Certificate",
+        "Medical Fitness Certificate",
+        "Category / EWS Certificate"
+      ],
+      "specificNotes": [
+        "Original Class 10 certificate is the sole accepted date of birth proof during physical reporting."
+      ]
+    },
+    {
+      "id": "iit-madras",
+      "name": "Indian Institute of Technology Madras (IIT Madras)",
+      "shortName": "IIT Madras",
+      "logoIcon": "🏛️",
+      "crestEmoji": "🛡️",
+      "gradientBadge": "linear-gradient(135deg, #047857, #065f46)",
+      "badgeColor": "#047857",
+      "location": "Chennai, Tamil Nadu",
+      "type": "Institute of National Importance (INI)",
+      "stream": "Engineering, Aerospace & Data Science",
+      "ranking": "NIRF Overall #1 (6 Consecutive Years)",
+      "fee": "₹1,12,000 / semester",
+      "deadline": "JoSAA Counselling 2026",
+      "officialPortal": {
+        "label": "IIT Madras Admissions",
+        "url": "https://www.iitm.ac.in"
+      },
+      "description": "Consistently ranked #1 in NIRF Overall Rankings with state-of-the-art research parks.",
+      "requiredDocuments": [
+        "JEE Advanced Scorecard",
+        "10th Marksheet",
+        "12th Marksheet",
+        "Aadhaar Card",
+        "Transfer Certificate (TC)",
+        "Migration Certificate",
+        "Medical Fitness Certificate",
+        "Passport Size Photograph"
+      ],
+      "specificNotes": [
+        "Verification requires digital upload on JoSAA followed by physical reporting."
+      ]
+    },
+    {
+      "id": "bits-pilani",
+      "name": "Birla Institute of Technology and Science (BITS Pilani)",
+      "shortName": "BITS Pilani (Pilani, Goa, Hyd)",
+      "logoIcon": "🔬",
+      "crestEmoji": "⚙️",
+      "gradientBadge": "linear-gradient(135deg, #059669, #047857)",
+      "badgeColor": "#059669",
+      "location": "Pilani (Rajasthan), Goa & Hyderabad",
+      "type": "Institute of Eminence (Deemed University)",
+      "stream": "Engineering & Sciences",
+      "ranking": "Top Private Tier-1 Engineering",
+      "fee": "₹2,60,000 / semester",
+      "deadline": "BITSAT Iterations - July 2026",
+      "officialPortal": {
+        "label": "BITS Admission Portal (BITSAT)",
+        "url": "https://www.bitsadmission.com"
+      },
+      "description": "100% merit-based admissions through BITSAT with no reservation quotas.",
+      "requiredDocuments": [
+        "BITSAT Scorecard",
+        "10th Marksheet",
+        "12th Marksheet",
+        "Aadhaar Card",
+        "Transfer Certificate (TC)",
+        "Migration Certificate",
+        "Passport Size Photograph"
+      ],
+      "specificNotes": [
+        "Strict eligibility: Aggregate 75% in PCM/PCB in 12th board with at least 60% in each individual subject."
+      ]
+    },
+    {
+      "id": "aiims-delhi",
+      "name": "All India Institute of Medical Sciences (AIIMS New Delhi)",
+      "shortName": "AIIMS New Delhi (MBBS)",
+      "logoIcon": "🏥",
+      "crestEmoji": "🩺",
+      "gradientBadge": "linear-gradient(135deg, #ef4444, #b91c1c)",
+      "badgeColor": "#ef4444",
+      "location": "Ansari Nagar, New Delhi",
+      "type": "Autonomous Medical Apex Institute (INI)",
+      "stream": "Medical & Healthcare (MBBS)",
+      "ranking": "NIRF Medical #1",
+      "fee": "₹1,628 (Complete 5.5-Year MBBS Fee)",
+      "deadline": "MCC NEET UG Counselling - August 2026",
+      "officialPortal": {
+        "label": "MCC / AIIMS MBBS Allotment",
+        "url": "https://mcc.nic.in"
+      },
+      "description": "India’s topmost medical institution requiring rigorous biometric and original document verification.",
+      "requiredDocuments": [
+        "NEET UG Scorecard & Admit Card",
+        "10th Marksheet",
+        "12th Marksheet",
+        "Aadhaar Card",
+        "Transfer Certificate (TC)",
+        "Migration Certificate",
+        "Gap Year Affidavit",
+        "Medical Fitness Certificate",
+        "Caste Certificate",
+        "Passport Size Photograph"
+      ],
+      "specificNotes": [
+        "Gap Year Affidavit on ₹100 stamp paper attested by Notary is mandatory for droppers.",
+        "Physical reporting with original Marksheets is mandatory during Round 1 allotment."
+      ]
+    },
+    {
+      "id": "delhi-university",
+      "name": "University of Delhi (DU - CSAS Portal)",
+      "shortName": "Delhi University (DU)",
+      "logoIcon": "📚",
+      "crestEmoji": "🎓",
+      "gradientBadge": "linear-gradient(135deg, #8b5cf6, #6d28d9)",
+      "badgeColor": "#8b5cf6",
+      "location": "North & South Campus, New Delhi",
+      "type": "Central University",
+      "stream": "Arts, Science, Commerce & Management (SRCC, Hindu, Hansraj, St. Stephens)",
+      "ranking": "NIRF Top 10 University",
+      "fee": "₹10,000 - ₹35,000 / year (varies by college)",
+      "deadline": "CSAS Phase 1 & 2 - July 2026",
+      "officialPortal": {
+        "label": "DU CSAS Admission Portal",
+        "url": "https://ugadmission.uod.ac.in"
+      },
+      "description": "Centralized admission across 70+ colleges through CUET UG scores.",
+      "requiredDocuments": [
+        "CUET Scorecard",
+        "10th Marksheet",
+        "12th Marksheet",
+        "Aadhaar Card",
+        "Character Certificate",
+        "Migration Certificate",
+        "Income Certificate",
+        "Caste Certificate",
+        "Passport Size Photograph"
+      ],
+      "specificNotes": [
+        "Name on CUET Application, 10th Marksheet, and Aadhaar Card must be 100% identical.",
+        "Character Certificate must be issued from last attended school/college (within 6 months)."
+      ]
+    },
+    {
+      "id": "iim-ahmedabad",
+      "name": "Indian Institute of Management Ahmedabad (IIM Ahmedabad)",
+      "shortName": "IIM Ahmedabad (MBA/PGP)",
+      "logoIcon": "💼",
+      "crestEmoji": "📊",
+      "gradientBadge": "linear-gradient(135deg, #b45309, #92400e)",
+      "badgeColor": "#b45309",
+      "location": "Vastrapur, Ahmedabad, Gujarat",
+      "type": "Institute of National Importance (INI)",
+      "stream": "Management (MBA / PGP / FABM)",
+      "ranking": "NIRF Management #1 • QS Global MBA #1 in India",
+      "fee": "₹25,00,000 (2-Year PGP Program)",
+      "deadline": "CAT 2026 / Shortlist Verification - January 2027",
+      "officialPortal": {
+        "label": "IIMA Admissions Portal",
+        "url": "https://www.iima.ac.in"
+      },
+      "description": "India’s apex business school with ultra-selective admissions via CAT score, AWT-PI, and work experience verification.",
+      "requiredDocuments": [
+        "CAT Scorecard",
+        "Graduation Degree / Passing Certificate",
+        "10th Marksheet",
+        "12th Marksheet",
+        "Aadhaar Card",
+        "Work Experience Certificates",
+        "Category / EWS Certificate",
+        "Passport Size Photograph"
+      ],
+      "specificNotes": [
+        "Work experience letters must contain exact joining/relieving dates and salary slips."
+      ]
+    },
+    {
+      "id": "nlsiu-bangalore",
+      "name": "National Law School of India University (NLSIU Bangalore)",
+      "shortName": "NLSIU Bangalore (CLAT Law)",
+      "logoIcon": "⚖️",
+      "crestEmoji": "🏛️",
+      "gradientBadge": "linear-gradient(135deg, #475569, #334155)",
+      "badgeColor": "#475569",
+      "location": "Nagarbhavi, Bengaluru, Karnataka",
+      "type": "Premier National Law University (INI)",
+      "stream": "Law (B.A. LL.B. Hons / LL.M.)",
+      "ranking": "NIRF Law #1 (Undisputed Top Law School)",
+      "fee": "₹3,20,000 / year",
+      "deadline": "CLAT Consortium Allotment - June 2026",
+      "officialPortal": {
+        "label": "NLSIU Admissions",
+        "url": "https://www.nls.ac.in"
+      },
+      "description": "The Harvard of the East for legal education. Admitting top rankers from CLAT.",
+      "requiredDocuments": [
+        "CLAT Scorecard & Admit Card",
+        "10th Marksheet",
+        "12th Marksheet",
+        "Aadhaar Card",
+        "Transfer Certificate (TC)",
+        "Migration Certificate",
+        "Character Certificate",
+        "Caste Certificate"
+      ],
+      "specificNotes": [
+        "Karnataka Student 25% Compartmental Reservation requires 10 years schooling in Karnataka."
+      ]
+    },
+    {
+      "id": "symbiosis-international",
+      "name": "Symbiosis International University (SIU Pune & Lavale)",
+      "shortName": "Symbiosis University (SIU)",
+      "logoIcon": "💼",
+      "crestEmoji": "🎓",
+      "gradientBadge": "linear-gradient(135deg, #d97706, #b45309)",
+      "badgeColor": "#d97706",
+      "location": "Lavale & Viman Nagar, Pune, Maharashtra",
+      "type": "Deemed University (NAAC A++ Accredited)",
+      "stream": "Management (SIBM), Law (SLS), Engineering (SIT) & Media (SIMC)",
+      "ranking": "NIRF Top 35 University",
+      "fee": "₹3,20,000 / year",
+      "deadline": "SET / SLAT / SNAP 2026",
+      "officialPortal": {
+        "label": "Symbiosis Entrance Portal (SET)",
+        "url": "https://www.set-test.org"
+      },
+      "description": "Renowned international university famous for Symbiosis Law School (SLS) and SIBM.",
+      "requiredDocuments": [
+        "SET / SLAT / SITEEE Scorecard",
+        "10th Marksheet",
+        "12th Marksheet",
+        "Aadhaar Card",
+        "Transfer Certificate (TC)",
+        "Migration Certificate",
+        "Passport Size Photograph"
+      ],
+      "specificNotes": [
+        "Symbiosis Entrance Test scorecard and PI-WAT shortlist letter required for final seat booking."
+      ]
+    },
+    {
+      "id": "nmims-mumbai",
+      "name": "NMIMS Deemed-to-be-University (SVKM’s NMIMS Mumbai)",
+      "shortName": "NMIMS Mumbai (NPAT / NMAT)",
+      "logoIcon": "📊",
+      "crestEmoji": "💼",
+      "gradientBadge": "linear-gradient(135deg, #dc2626, #991b1b)",
+      "badgeColor": "#dc2626",
+      "location": "Vile Parle, Mumbai, Maharashtra",
+      "type": "Deemed University (Category 1 Autonomy)",
+      "stream": "Commerce (B.Com/BBA), Engineering (MPSTME), Pharmacy & Law",
+      "ranking": "NIRF Top 20 Management",
+      "fee": "₹3,50,000 / year",
+      "deadline": "NPAT / NCET 2026",
+      "officialPortal": {
+        "label": "NMIMS Admissions",
+        "url": "https://www.nmims.edu"
+      },
+      "description": "Top private management and technical university with prime Mumbai corporate exposure.",
+      "requiredDocuments": [
+        "NPAT / NMAT Scorecard",
+        "10th Marksheet",
+        "12th Marksheet",
+        "Aadhaar Card",
+        "Transfer Certificate (TC)",
+        "Migration Certificate",
+        "Passport Size Photograph"
+      ],
+      "specificNotes": [
+        "Mathematics / Statistics in 12th board is mandatory for BBA / B.Com Hons / B.Sc Finance."
+      ]
+    },
+    {
+      "id": "mit-wpu-pune",
+      "name": "MIT World Peace University (MIT-WPU Kothrud, Pune)",
+      "shortName": "MIT-WPU Pune",
+      "logoIcon": "🕊️",
+      "crestEmoji": "⚙️",
+      "gradientBadge": "linear-gradient(135deg, #0d9488, #0369a1)",
+      "badgeColor": "#0d9488",
+      "location": "Kothrud, Pune, Maharashtra",
+      "type": "State Private University",
+      "stream": "Engineering (B.Tech), Management, Design & Pharmacy",
+      "ranking": "Top Private Technical Institute in Pune",
+      "fee": "₹3,10,000 / year",
+      "deadline": "MIT-WPU CET / JEE / MHT CET 2026",
+      "officialPortal": {
+        "label": "MIT-WPU Admissions",
+        "url": "https://mitwpu.edu.in"
+      },
+      "description": "Flagship engineering campus in Kothrud Pune with extensive robotics, AI, and industry placements.",
+      "requiredDocuments": [
+        "JEE Main / MHT-CET Scorecard",
+        "10th Marksheet",
+        "12th Marksheet",
+        "Aadhaar Card",
+        "Transfer Certificate (TC)",
+        "Migration Certificate",
+        "Statement of Purpose (SOP)"
+      ],
+      "specificNotes": [
+        "Scholarships available up to 100% on JEE Main 95+ percentile scores."
+      ]
+    },
+    {
+      "id": "harvard-university",
+      "name": "Harvard University (Cambridge, Massachusetts, USA)",
+      "shortName": "Harvard University (Ivy League)",
+      "logoIcon": "🌍",
+      "crestEmoji": "👑",
+      "gradientBadge": "linear-gradient(135deg, #991b1b, #7f1d1d)",
+      "badgeColor": "#991b1b",
+      "location": "Cambridge, MA, United States",
+      "type": "Ivy League Research University (Estd. 1636)",
+      "stream": "Undergraduate (Harvard College), Law (HLS), Business (HBS), Medicine (HMS)",
+      "ranking": "World Rank #1 • Global Ivy League Apex",
+      "fee": "$57,000 / year (100% Need-Blind Financial Aid for International Students)",
+      "deadline": "Common App Early Action (Nov 1) / Regular (Jan 1)",
+      "officialPortal": {
+        "label": "Harvard College Admissions",
+        "url": "https://college.harvard.edu/admissions"
+      },
+      "description": "Premier global university offering world-leading liberal arts and sciences with need-blind financial aid for Indian applicants.",
+      "requiredDocuments": [
+        "Valid Passport",
+        "Common App / Coalition Application",
+        "10th Marksheet",
+        "12th Marksheet",
+        "SAT / ACT Scorecard",
+        "TOEFL / IELTS / Duolingo Scorecard",
+        "Letter of Recommendation (LOR)",
+        "Statement of Purpose (SOP)",
+        "Financial Solvency Affidavit"
+      ],
+      "specificNotes": [
+        "International applicants require valid Passport valid for at least 6 months beyond intended stay.",
+        "Two Teacher Evaluation Letters and One Counselor Recommendation letter mandatory via Common App."
+      ]
+    },
+    {
+      "id": "mit-usa",
+      "name": "Massachusetts Institute of Technology (MIT Boston, USA)",
+      "shortName": "MIT (Boston, USA)",
+      "logoIcon": "💻",
+      "crestEmoji": "⚡",
+      "gradientBadge": "linear-gradient(135deg, #881337, #4c0519)",
+      "badgeColor": "#881337",
+      "location": "Cambridge/Boston, MA, United States",
+      "type": "Private Global Technology & Science University",
+      "stream": "Computer Science, Artificial Intelligence, Aerospace & Physics",
+      "ranking": "QS World University #1 (12 Consecutive Years)",
+      "fee": "$60,000 / year (Full Need-Based Aid for Indian Students)",
+      "deadline": "MIT Online Application - January 1",
+      "officialPortal": {
+        "label": "MIT Admissions",
+        "url": "https://mitadmissions.org"
+      },
+      "description": "The world’s most prestigious institution for engineering, artificial intelligence, and quantum sciences.",
+      "requiredDocuments": [
+        "Valid Passport",
+        "10th Marksheet",
+        "12th Marksheet",
+        "SAT / ACT Scorecard",
+        "TOEFL / IELTS Scorecard",
+        "Letter of Recommendation (LOR)",
+        "Statement of Purpose (SOP)",
+        "Financial Solvency Affidavit"
+      ],
+      "specificNotes": [
+        "MIT does not use Common App; applications are submitted exclusively on MIT Application Portal."
+      ]
+    },
+    {
+      "id": "oxford-university",
+      "name": "University of Oxford (Oxford, United Kingdom)",
+      "shortName": "University of Oxford (UK)",
+      "logoIcon": "🇬🇧",
+      "crestEmoji": "🏛️",
+      "gradientBadge": "linear-gradient(135deg, #002147, #001226)",
+      "badgeColor": "#002147",
+      "location": "Oxford, England, United Kingdom",
+      "type": "Collegiate Research University (Estd. 1096)",
+      "stream": "Philosophy, Politics & Economics (PPE), Computer Science, Law & Medicine",
+      "ranking": "Times Higher Education World #1",
+      "fee": "£33,000 - £48,000 / year",
+      "deadline": "UCAS Deadline - October 15 (Strict)",
+      "officialPortal": {
+        "label": "Oxford Undergraduate Admissions (UCAS)",
+        "url": "https://www.ox.ac.uk/admissions"
+      },
+      "description": "The oldest university in the English-speaking world. Admitting via UCAS and college admissions test.",
+      "requiredDocuments": [
+        "Valid Passport",
+        "UCAS Application & Personal Statement",
+        "10th Marksheet",
+        "12th Marksheet",
+        "IELTS Scorecard (7.5+ Overall)",
+        "Letter of Recommendation (LOR)",
+        "Financial Solvency Affidavit"
+      ],
+      "specificNotes": [
+        "CBSE / CISCE board scores of 90%+ in 12th with 95+ in relevant subjects are strictly required."
+      ]
+    }
+  ],
+  "services": [
+    {
+      "id": "upsc-civil-services",
+      "title": "UPSC Civil Services Examination (IAS / IPS / IFS)",
+      "category": "Civil Services & Defense",
+      "badgeIcon": "🇮🇳",
+      "badgeColor": "#b45309",
+      "deadline": "DAF-1 Submission - August 2026",
+      "fee": "₹100 (Free for Female/SC/ST/PwD)",
+      "description": "Detailed Application Form (DAF) document verification for India’s highest administrative and foreign services.",
+      "officialPortal": {
+        "label": "Union Public Service Commission (UPSC)",
+        "url": "https://upsconline.nic.in"
+      },
+      "requiredDocuments": [
+        "10th Marksheet",
+        "12th Marksheet",
+        "Graduation Degree / Passing Certificate",
+        "Aadhaar Card",
+        "Category / EWS Certificate",
+        "Disability / PwD Certificate",
+        "Passport Size Photograph"
+      ],
+      "steps": [
+        "Complete One Time Registration (OTR) on UPSC portal with valid Aadhaar & active phone.",
+        "Upload Matriculation (10th) certificate as absolute legal proof of Date of Birth.",
+        "Submit Graduation Degree Certificate or Bonafide Final Year certificate from authorized Registrar.",
+        "Upload Central Govt format OBC-NCL / EWS / SC / ST caste certificate issued in prescribed financial year."
+      ],
+      "commonPitfalls": [
+        "Spelling differences in candidate name between 10th marksheet and Degree certificate.",
+        "OBC-NCL certificate issued after the cutoff date of the preliminary exam notification."
+      ]
+    },
+    {
+      "id": "aadhaar-correction",
+      "title": "Aadhaar Name / DOB / Address Demographic Update",
+      "category": "Government ID & Identity",
+      "badgeIcon": "🆔",
+      "badgeColor": "#0d9488",
+      "deadline": "No fixed deadline (Open 365 Days)",
+      "fee": "₹50 online / ₹100 at Aadhaar Seva Kendra (ASK)",
+      "description": "Correct demographic spelling, update mobile number, or update address on your 12-digit official Aadhaar card.",
+      "officialPortal": {
+        "label": "UIDAI myAadhaar Portal",
+        "url": "https://myaadhaar.uidai.gov.in"
+      },
+      "requiredDocuments": [
+        "Identity Proof",
+        "Address Proof",
+        "Date of Birth Proof",
+        "Aadhaar Card"
+      ],
+      "steps": [
+        "Login to myAadhaar portal using your Aadhaar number and OTP.",
+        "Select the field to update (Name, DOB, Gender, or Address).",
+        "Upload supporting document (10th Marksheet for DOB, Passport/PAN for Name, Electricity Bill/Rent Agreement for Address).",
+        "Pay online fee of ₹50 and track the URN (Update Request Number)."
+      ],
+      "commonPitfalls": [
+        "Uploading blurry or cropped document photos resulting in rejection by UIDAI automated verifier.",
+        "Name changes exceeding 2 lifetime attempts without Gazette notification."
+      ]
+    },
+    {
+      "id": "passport-application",
+      "title": "Fresh Passport Application (Tatkaal & Normal PSK)",
+      "category": "Travel & Identity",
+      "badgeIcon": "✈️",
+      "badgeColor": "#3b82f6",
+      "deadline": "Appointment Based (PSK / POPSK)",
+      "fee": "₹1,500 (Normal 36-page) / ₹3,500 (Tatkaal)",
+      "description": "Apply for a fresh 36-page Indian passport via Passport Seva Kendra (PSK) with biometric verification.",
+      "officialPortal": {
+        "label": "Passport Seva Portal (MEA India)",
+        "url": "https://www.passportindia.gov.in"
+      },
+      "requiredDocuments": [
+        "Identity Proof",
+        "Address Proof",
+        "Date of Birth Proof",
+        "10th Marksheet",
+        "Aadhaar Card"
+      ],
+      "steps": [
+        "Create an account on Passport Seva portal and fill the application form.",
+        "Pay appointment fee and schedule visit to nearest PSK or POPSK.",
+        "Carry original physical documents along with 2 self-attested photocopies.",
+        "Undergo biometric capture at PSK, followed by local Police Verification at your registered address."
+      ],
+      "commonPitfalls": [
+        "Address proof mismatch between Aadhaar and present living address.",
+        "Non-ECR (Emigration Check Not Required) status requires submission of 10th/Higher Education passing certificate."
+      ]
+    },
+    {
+      "id": "pan-aadhaar-link",
+      "title": "PAN Card Application & Aadhaar Linkage (NSDL / UTIITSL)",
+      "category": "Finance & Tax",
+      "badgeIcon": "💳",
+      "badgeColor": "#8b5cf6",
+      "deadline": "Immediate Compliance",
+      "fee": "₹107 (Physical PAN) / ₹0 (Instant e-PAN via Aadhaar e-KYC)",
+      "description": "Apply for a new Permanent Account Number or link PAN with Aadhaar as mandated by Income Tax Department.",
+      "officialPortal": {
+        "label": "Income Tax e-Filing Portal",
+        "url": "https://www.incometax.gov.in/iec/foportal"
+      },
+      "requiredDocuments": [
+        "Aadhaar Card",
+        "Identity Proof",
+        "Date of Birth Proof",
+        "Passport Size Photograph"
+      ],
+      "steps": [
+        "Go to the e-Filing portal ➔ Quick Links ➔ \"Link Aadhaar\".",
+        "Enter PAN and Aadhaar number to check linkage status.",
+        "If not linked, pay statutory penalty fee of ₹1,000 via e-Pay Tax on NSDL.",
+        "Submit Aadhaar OTP request to complete biometric authentication."
+      ],
+      "commonPitfalls": [
+        "Name or Date of Birth discrepancy between PAN database and UIDAI database causing validation failure."
+      ]
+    },
+    {
+      "id": "post-matric-scholarship",
+      "title": "National Scholarship Portal (NSP Central & State Schemes)",
+      "category": "Scholarships & Grants",
+      "badgeIcon": "💰",
+      "badgeColor": "#10b981",
+      "deadline": "October 31, 2026",
+      "fee": "Free of Cost (100% Govt Funded)",
+      "description": "Centralized financial aid and tuition fee reimbursement for meritorious, minority, and SC/ST/OBC students.",
+      "officialPortal": {
+        "label": "National Scholarship Portal (NSP)",
+        "url": "https://scholarships.gov.in"
+      },
+      "requiredDocuments": [
+        "Aadhaar Card",
+        "Income Certificate",
+        "Caste Certificate",
+        "Bank Passbook",
+        "10th Marksheet",
+        "12th Marksheet"
+      ],
+      "steps": [
+        "Generate OTR (One Time Registration) using Aadhaar Face Auth or Mobile OTP.",
+        "Fill family income details and upload valid Tehsildar-signed Income Certificate.",
+        "Link your Bank Account with Aadhaar (NPCI Aadhaar Seeding is mandatory).",
+        "Submit the application and download the verification slip for college endorsement."
+      ],
+      "commonPitfalls": [
+        "Bank account is not NPCI-seeded with Aadhaar, causing Direct Benefit Transfer (DBT) payment failure.",
+        "Income certificate validity expired before the application verification date."
+      ]
+    },
+    {
+      "id": "driving-license",
+      "title": "Learner & Permanent Driving Licence (Sarathi Parivahan)",
+      "category": "Transport & Licence",
+      "badgeIcon": "🚗",
+      "badgeColor": "#f59e0b",
+      "deadline": "Validity 6 Months for Learner Licence",
+      "fee": "₹200 (LL) / ₹700 (DL + Smart Card)",
+      "description": "Apply for Learner Licence and Driving Smart Card via Ministry of Road Transport (MoRTH) contactless portal.",
+      "officialPortal": {
+        "label": "Sarathi Parivahan Portal",
+        "url": "https://parivahan.gov.in"
+      },
+      "requiredDocuments": [
+        "Aadhaar Card",
+        "10th Marksheet",
+        "Address Proof",
+        "Medical Fitness Certificate",
+        "Passport Size Photograph"
+      ],
+      "steps": [
+        "Visit Parivahan portal ➔ Select State ➔ \"Apply for Learner Licence (LL)\".",
+        "Authenticate with Aadhaar e-KYC for contactless exam without visiting RTO.",
+        "Appear for online road safety test from home.",
+        "After 30 days of LL, book slot for physical driving test at RTO for Permanent DL."
+      ],
+      "commonPitfalls": [
+        "Candidate age must be strictly 18+ on date of application for four-wheeler and geared two-wheeler."
+      ]
+    }
+  ],
+  "aadhaarCenters": [
+    {
+      "id": "ask-pune-shivajinagar",
+      "city": "Pune",
+      "state": "Maharashtra",
+      "name": "UIDAI Aadhaar Seva Kendra (ASK) - Shivajinagar",
+      "address": "Ground Floor, Vega Centre, Shankarsheth Road / F.C. Road, Shivajinagar, Pune - 411005",
+      "timings": "09:30 AM to 05:30 PM (Open 7 Days a Week)",
+      "servicesOffered": "New Enrollment, Name/DOB/Address Update, Biometric Update (Fingerprint/Iris/Photo)",
+      "bookingUrl": "https://appointments.uidai.gov.in/easearch.aspx"
+    },
+    {
+      "id": "ask-pune-pimpri",
+      "city": "Pune / Pimpri",
+      "state": "Maharashtra",
+      "name": "Aadhaar Seva Kendra - Pimpri Chinchwad (PCMC)",
+      "address": "PCMC Citizen Facilitation Centre, Near Deluxe Cinema, Pimpri, Pune - 411017",
+      "timings": "10:00 AM to 05:00 PM (Monday to Saturday)",
+      "servicesOffered": "Demographic Update, Mobile Number Linkage, Child Blue Aadhaar",
+      "bookingUrl": "https://appointments.uidai.gov.in/easearch.aspx"
+    },
+    {
+      "id": "ask-mumbai-andheri",
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "name": "UIDAI Regional Aadhaar Seva Kendra - Andheri East",
+      "address": "7th Floor, Trade Centre, Near Chakala Metro Station, Andheri East, Mumbai - 400059",
+      "timings": "09:30 AM to 06:00 PM (Open 7 Days)",
+      "servicesOffered": "All Aadhaar Demographic & Biometric Services, Mandatory 5/15 Year Update",
+      "bookingUrl": "https://appointments.uidai.gov.in/easearch.aspx"
+    },
+    {
+      "id": "ask-delhi-connaught-place",
+      "city": "New Delhi",
+      "state": "Delhi NCR",
+      "name": "UIDAI Headquarters Mega Aadhaar Kendra - Connaught Place",
+      "address": "Bangla Sahib Road, Gole Market / CP, New Delhi - 110001",
+      "timings": "09:00 AM to 05:30 PM (Open 7 Days)",
+      "servicesOffered": "Priority Senior Citizen Desk, Complete Biometric & Gazette Name Correction",
+      "bookingUrl": "https://appointments.uidai.gov.in/easearch.aspx"
+    },
+    {
+      "id": "ask-bangalore-indiranagar",
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "name": "UIDAI Aadhaar Seva Kendra - Indiranagar",
+      "address": "100 Feet Road, 2nd Stage, Indiranagar, Bengaluru, Karnataka - 560038",
+      "timings": "09:30 AM to 05:30 PM (All 7 Days)",
+      "servicesOffered": "Fast-Track Update, Document Re-validation, Photo Update",
+      "bookingUrl": "https://appointments.uidai.gov.in/easearch.aspx"
+    },
+    {
+      "id": "ask-hyderabad-madhapur",
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "name": "UIDAI Aadhaar Seva Kendra - Madhapur Hitech City",
+      "address": "Plot 12, Cyber Towers Area, Madhapur, Hyderabad, Telangana - 500081",
+      "timings": "09:30 AM to 05:30 PM (All 7 Days)",
+      "servicesOffered": "Instant e-KYC, Student Priority Queue, Address Verification Letters",
+      "bookingUrl": "https://appointments.uidai.gov.in/easearch.aspx"
+    },
+    {
+      "id": "ask-kolkata-saltlake",
+      "city": "Kolkata",
+      "state": "West Bengal",
+      "name": "UIDAI Aadhaar Seva Kendra - Salt Lake Sector V",
+      "address": "Block EP & GP, Electronics Complex, Salt Lake, Kolkata - 700091",
+      "timings": "09:30 AM to 05:30 PM (Monday to Saturday)",
+      "servicesOffered": "Demographic Correction, Mobile Linkage, Iris Capture",
+      "bookingUrl": "https://appointments.uidai.gov.in/easearch.aspx"
+    },
+    {
+      "id": "ask-ahmedabad-navrangpura",
+      "city": "Ahmedabad",
+      "state": "Gujarat",
+      "name": "UIDAI Aadhaar Seva Kendra - Navrangpura",
+      "address": "Near Gujarat University, Navrangpura, Ahmedabad, Gujarat - 380009",
+      "timings": "09:30 AM to 05:30 PM (Open 7 Days)",
+      "servicesOffered": "Student Admissions Verification, Demographic & Biometric Update",
+      "bookingUrl": "https://appointments.uidai.gov.in/easearch.aspx"
+    }
+  ],
+  "documentEquivalents": {
+    "Identity Proof": [
+      "Aadhaar Card",
+      "PAN Card",
+      "Passport",
+      "Voter ID",
+      "Driving Licence",
+      "Valid Passport"
+    ],
+    "Address Proof": [
+      "Aadhaar Card",
+      "Passport",
+      "Electricity Bill",
+      "Voter ID",
+      "Ration Card",
+      "Domicile Certificate",
+      "Domicile",
+      "Valid Passport"
+    ],
+    "Date of Birth Proof": [
+      "10th Marksheet",
+      "10th Class Certificate",
+      "Birth Certificate",
+      "Passport",
+      "Valid Passport"
+    ],
+    "10th Marksheet": [
+      "10th Marksheet",
+      "10th Class Certificate",
+      "Class 10 Certificate",
+      "Matriculation Certificate",
+      "SSC Marksheet"
+    ],
+    "12th Marksheet": [
+      "12th Marksheet",
+      "Class 12 Certificate",
+      "HSC Marksheet",
+      "Senior Secondary Certificate",
+      "12th Board Passing Certificate"
+    ],
+    "Domicile": [
+      "Domicile Certificate",
+      "State Domicile Certificate",
+      "Permanent Residence Certificate",
+      "Domicile"
+    ],
+    "Caste Certificate": [
+      "Category / EWS Certificate",
+      "Caste Certificate",
+      "OBC-NCL Certificate",
+      "SC/ST Certificate",
+      "Caste Validity Certificate"
+    ],
+    "Category / EWS Certificate": [
+      "Category / EWS Certificate",
+      "Caste Certificate",
+      "OBC-NCL Certificate",
+      "EWS Certificate"
+    ],
+    "Transfer Certificate (TC)": [
+      "Transfer Certificate (TC)",
+      "School Leaving Certificate (SLC)",
+      "College Leaving Certificate (CLC)",
+      "TC"
+    ],
+    "Migration Certificate": [
+      "Migration Certificate",
+      "Board Migration Certificate",
+      "University Migration Certificate"
+    ],
+    "Medical Fitness Certificate": [
+      "Medical Fitness Certificate",
+      "Doctor Fitness Certificate (MBBS)",
+      "Medical Certificate"
+    ],
+    "Gap Year Affidavit": [
+      "Gap Year Affidavit",
+      "Gap Certificate on Stamp Paper",
+      "Notary Gap Certificate",
+      "Gap Year Undertaking"
+    ],
+    "Valid Passport": [
+      "Passport",
+      "Valid Passport",
+      "Indian Passport"
+    ],
+    "SAT / ACT Scorecard": [
+      "SAT Scorecard",
+      "ACT Scorecard",
+      "SAT / ACT Scorecard"
+    ],
+    "TOEFL / IELTS Scorecard": [
+      "IELTS Scorecard",
+      "TOEFL Scorecard",
+      "Duolingo English Scorecard",
+      "TOEFL / IELTS / Duolingo Scorecard",
+      "IELTS Scorecard (7.5+ Overall)"
+    ],
+    "Letter of Recommendation (LOR)": [
+      "Letter of Recommendation (LOR)",
+      "Teacher LOR",
+      "Counselor Recommendation"
+    ],
+    "Statement of Purpose (SOP)": [
+      "Statement of Purpose (SOP)",
+      "Personal Statement",
+      "College Essay"
+    ],
+    "Financial Solvency Affidavit": [
+      "Financial Solvency Affidavit",
+      "Bank Solvency Certificate",
+      "Sponsor Affidavit"
+    ]
+  },
+  "documentGuides": {
+    "Transfer Certificate (TC)": {
+      "priority": "High",
+      "difficulty": "Medium",
+      "source": "Previous School / Junior College Administration Office",
+      "timeline": "2-4 Working Days",
+      "cost": "₹0 - ₹100",
+      "link": "https://www.google.com/search?q=application+for+transfer+certificate+school+college",
+      "nextStep": "Submit a written request along with your 12th board marksheet photocopy to the School Principal / Registrar office."
+    },
+    "Migration Certificate": {
+      "priority": "High",
+      "difficulty": "Low",
+      "source": "CBSE / State Board Online Portal / DigiLocker",
+      "timeline": "Instant on DigiLocker / 5 Days via Postal Dispatch",
+      "cost": "₹250 - ₹500",
+      "link": "https://www.digilocker.gov.in",
+      "nextStep": "Download verified digital Migration Certificate from DigiLocker or apply through your board’s student service portal."
+    },
+    "Gap Year Affidavit": {
+      "priority": "High",
+      "difficulty": "Easy",
+      "source": "Local Notary Advocate / District Sub-Court",
+      "timeline": "Same Day (1-2 Hours)",
+      "cost": "₹150 - ₹300 on ₹100 Non-Judicial Stamp Paper",
+      "link": "https://www.google.com/search?q=gap+year+affidavit+format+stamp+paper",
+      "nextStep": "Visit any Notary public with Aadhaar and 12th marksheet to draft a Gap Year Affidavit stating you took a study drop year."
+    },
+    "Medical Fitness Certificate": {
+      "priority": "Medium",
+      "difficulty": "Easy",
+      "source": "Registered Medical Practitioner (Govt Hospital / MBBS Doctor)",
+      "timeline": "Same Day",
+      "cost": "₹100 - ₹200",
+      "link": "https://josaa.nic.in",
+      "nextStep": "Download your college’s prescribed medical proforma (e.g. JoSAA Annexure 7) and get it stamped by an MBBS doctor."
+    },
+    "Income Certificate": {
+      "priority": "High",
+      "difficulty": "Medium",
+      "source": "State e-District Portal / Tahsildar Office",
+      "timeline": "7-14 Days",
+      "cost": "₹30 - ₹50",
+      "link": "https://edistrict.delhi.gov.in",
+      "nextStep": "Apply online on your state e-District portal with salary slips/ITR and ration card for fee concession and scholarships."
+    },
+    "Domicile": {
+      "priority": "High",
+      "difficulty": "Medium",
+      "source": "Sub-Divisional Magistrate (SDM) / State e-District / MahaOnline",
+      "timeline": "10-15 Days",
+      "cost": "₹50",
+      "link": "https://aaplesarkar.mahaonline.gov.in",
+      "nextStep": "Submit 10 years proof of residence (Electricity bill / Ration card / School certificates) on state citizen portal."
+    },
+    "Caste Certificate": {
+      "priority": "High",
+      "difficulty": "High",
+      "source": "Revenue Dept / Tehsildar / District Magistrate",
+      "timeline": "15-21 Days",
+      "cost": "₹50",
+      "link": "https://edistrict.up.gov.in",
+      "nextStep": "Apply on state revenue portal with family lineage caste proof. Central format is mandatory for IITs/AIIMS/UPSC."
+    },
+    "Valid Passport": {
+      "priority": "High",
+      "difficulty": "Medium",
+      "source": "Passport Seva Kendra (Ministry of External Affairs)",
+      "timeline": "7-15 Days (Normal) / 3 Days (Tatkaal)",
+      "cost": "₹1,500",
+      "link": "https://www.passportindia.gov.in",
+      "nextStep": "Book appointment on passportindia.gov.in with 10th marksheet (DOB proof) and Aadhaar (Address proof)."
+    }
+  },
+  "taskStore": {},
+  "auditLogs": []
+}

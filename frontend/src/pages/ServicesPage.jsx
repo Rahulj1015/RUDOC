@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+
+const API_URL = import.meta.env.VITE_API_URL ?? ''
 
 export default function ServicesPage({
   services,
@@ -10,16 +12,26 @@ export default function ServicesPage({
 }) {
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('All')
+  const [aadhaarCenters, setAadhaarCenters] = useState([])
+  const [activeSubTab, setActiveSubTab] = useState('services') // 'services' | 'aadhaar-centers'
+  const [selectedCity, setSelectedCity] = useState('All')
 
   const categories = [
     'All',
-    'Competitive & Civil Services',
-    'Education & Admissions',
+    'Civil Services & Defense',
     'Government ID & Identity',
-    'Scholarship & Welfare',
     'Travel & Identity',
     'Finance & Tax',
+    'Scholarships & Grants',
+    'Transport & Licence',
   ]
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/aadhaar-centers`)
+      .then((res) => (res.ok ? res.json() : { aadhaarCenters: [] }))
+      .then((data) => setAadhaarCenters(data.aadhaarCenters || []))
+      .catch(() => setAadhaarCenters([]))
+  }, [])
 
   const filteredServices = services.filter((svc) => {
     const matchesCat = categoryFilter === 'All' || svc.category.toLowerCase().includes(categoryFilter.toLowerCase())
@@ -36,266 +48,338 @@ export default function ServicesPage({
   const selectedService = services.find((s) => s.id === selectedServiceId) || filteredServices[0] || services[0]
   const readiness = match?.completionPercentage ?? 0
 
+  const cities = ['All', 'Pune', 'Mumbai', 'New Delhi', 'Bengaluru', 'Hyderabad', 'Kolkata', 'Ahmedabad']
+
+  const filteredCenters = aadhaarCenters.filter((c) => {
+    const matchesCity = selectedCity === 'All' || c.city.toLowerCase().includes(selectedCity.toLowerCase())
+    const q = search.trim().toLowerCase()
+    const matchesSearch = !q || c.name.toLowerCase().includes(q) || c.address.toLowerCase().includes(q) || c.city.toLowerCase().includes(q)
+    return matchesCity && matchesSearch
+  })
+
   return (
     <div className="page-container">
-      {/* Search & Filter Header */}
-      <div className="card" style={{ marginBottom: '24px' }}>
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+      {/* Search & Sub-Navigation Header */}
+      <div className="section-header-banner">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
           <div>
-            <span className="badge badge-teal">🏛️ Citizen & Competitive Services</span>
-            <h3 className="card-title" style={{ marginTop: '4px', fontSize: '22px' }}>
-              Government Services & Competitive Exam Checklists
-            </h3>
-            <p className="card-subtitle">
-              Verify required documents for UPSC Civil Services, Aadhaar correction, NSP Scholarships, Passports, and PAN Card.
+            <span className="badge badge-teal">National Portals & Civil Schemes</span>
+            <h2 style={{ fontSize: '26px', fontWeight: '900', color: 'var(--text-primary)', marginTop: '4px' }}>
+              🏛️ Government Portals & Aadhaar Center Locator
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '14px', maxWidth: '750px', marginTop: '4px' }}>
+              Verify required documents for UPSC Civil Services, Passport Seva, PAN-Aadhaar, Scholarships, and locate nearest UIDAI Kendra.
             </p>
           </div>
 
-          <div style={{ flex: '1', minWidth: '280px', maxWidth: '440px' }}>
-            <input
-              type="search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="🔍 Search UPSC, Aadhaar, Passport, Scholarship, PAN..."
-              style={{
-                width: '100%',
-                padding: '12px 18px',
-                borderRadius: '12px',
-                border: '1px solid var(--border-glass)',
-                background: 'var(--bg-card)',
-                backdropFilter: 'blur(10px)',
-                color: 'var(--text-primary)',
-                fontSize: '14px',
-                outline: 'none',
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Category Filter Pills */}
-        <div style={{ display: 'flex', gap: '8px', marginTop: '18px', flexWrap: 'wrap' }}>
-          {categories.map((cat) => (
+          {/* Sub Tab Switcher */}
+          <div className="apple-segmented-bar">
             <button
-              key={cat}
               type="button"
-              className={`btn btn-sm ${categoryFilter === cat ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => setCategoryFilter(cat)}
-              style={{ fontSize: '11px', padding: '5px 12px' }}
+              className={`apple-segmented-item ${activeSubTab === 'services' ? 'active' : ''}`}
+              onClick={() => setActiveSubTab('services')}
             >
-              {cat}
+              🎯 Govt & Civil Services
             </button>
-          ))}
+            <button
+              type="button"
+              className={`apple-segmented-item ${activeSubTab === 'aadhaar-centers' ? 'active' : ''}`}
+              onClick={() => setActiveSubTab('aadhaar-centers')}
+            >
+              📍 Aadhaar Seva Kendra Locator
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="grid-2col">
-        {/* Service Cards List */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '900', color: 'var(--text-primary)' }}>
-              Available Services ({filteredServices.length})
-            </h3>
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Click to match against vault</span>
+      {/* 1. SERVICES TAB */}
+      {activeSubTab === 'services' && (
+        <>
+          {/* Categories Pill Bar */}
+          <div className="apple-segmented-bar" style={{ margin: '20px 0 16px 0' }}>
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                className={`apple-segmented-item ${categoryFilter === cat ? 'active' : ''}`}
+                onClick={() => setCategoryFilter(cat)}
+              >
+                {cat}
+              </button>
+            ))}
           </div>
 
-          {filteredServices.map((service) => {
-            const isSelected = service.id === selectedServiceId
-            return (
-              <div
-                key={service.id}
-                onClick={() => onSelectService(service.id)}
-                style={{
-                  background: isSelected ? 'var(--bg-card-hover)' : 'var(--bg-card)',
-                  backdropFilter: 'blur(16px)',
-                  borderRadius: '16px',
-                  border: isSelected ? '2px solid var(--primary)' : '1px solid var(--border-glass)',
-                  padding: '20px',
-                  cursor: 'pointer',
-                  boxShadow: isSelected ? '0 8px 24px var(--primary-glow)' : 'var(--shadow-card)',
-                  transition: 'all 0.25s ease',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px',
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{
-                      width: '44px',
-                      height: '44px',
-                      borderRadius: '12px',
-                      background: 'var(--primary-light)',
-                      border: '1px solid var(--primary-glow)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '22px',
-                      boxShadow: '0 4px 10px rgba(0, 0, 0, 0.08)',
-                    }}>
-                      {service.badgeIcon || '🏛️'}
+          {/* Search Input */}
+          <div style={{ marginBottom: '24px' }}>
+            <input
+              type="text"
+              className="input-field"
+              placeholder="🔍 Search UPSC Civil Services, Passport Tatkaal, Aadhaar Update, NSP Scholarships, PAN Card..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{ width: '100%', padding: '14px 18px', fontSize: '15px' }}
+            />
+          </div>
+
+          {/* 2-Column Split: Services Directory & Live Audit */}
+          <div className="match-columns">
+            {/* Left Column: Services List */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                <span style={{ fontSize: '13px', fontWeight: '800', color: 'var(--text-primary)' }}>
+                  Available Government Schemes & Portals ({filteredServices.length})
+                </span>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Click to check eligibility</span>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '720px', overflowY: 'auto', paddingRight: '4px' }}>
+                {filteredServices.map((svc) => {
+                  const isSelected = selectedService?.id === svc.id
+                  return (
+                    <div
+                      key={svc.id}
+                      className={`college-card-item ${isSelected ? 'selected' : ''}`}
+                      onClick={() => onSelectService(svc.id)}
+                      style={{
+                        background: isSelected ? 'var(--bg-card-hover)' : 'var(--bg-card)',
+                        border: isSelected ? '2px solid var(--primary)' : '1px solid var(--border-glass)',
+                        borderRadius: '16px',
+                        padding: '16px',
+                        cursor: 'pointer',
+                        transition: 'var(--spring-transition)',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                        <div
+                          style={{
+                            width: '44px',
+                            height: '44px',
+                            borderRadius: '12px',
+                            background: svc.badgeColor || 'var(--primary-gradient)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '22px',
+                            color: 'white',
+                            flexShrink: 0,
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                          }}
+                        >
+                          {svc.badgeIcon || '🏛️'}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <h4 style={{ fontSize: '15px', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>
+                            {svc.title}
+                          </h4>
+                          <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginTop: '2px' }}>
+                            {svc.category} • Fee: {svc.fee}
+                          </span>
+                          <div style={{ display: 'flex', gap: '6px', marginTop: '8px', flexWrap: 'wrap' }}>
+                            <span className="badge badge-teal" style={{ fontSize: '10px' }}>
+                              ⏱️ {svc.deadline}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Right Column: Live Requirement Gap Audit */}
+            {selectedService && (
+              <div style={{ background: 'var(--bg-card)', borderRadius: '20px', border: '1px solid var(--border-glass)', padding: '24px', position: 'sticky', top: '90px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--border-glass)', paddingBottom: '18px' }}>
+                  <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+                    <div
+                      style={{
+                        width: '54px',
+                        height: '54px',
+                        borderRadius: '16px',
+                        background: selectedService.badgeColor || 'var(--primary-gradient)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '26px',
+                        color: 'white',
+                        boxShadow: '0 6px 18px rgba(0,0,0,0.2)',
+                      }}
+                    >
+                      {selectedService.badgeIcon || '🏛️'}
                     </div>
                     <div>
-                      <h4 style={{ fontSize: '17px', fontWeight: '900', color: isSelected ? 'var(--primary)' : 'var(--text-primary)' }}>
-                        {service.title}
-                      </h4>
-                      <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                        📂 {service.category}
+                      <span className="badge badge-teal" style={{ marginBottom: '4px' }}>Target Service Portal</span>
+                      <h3 style={{ fontSize: '18px', fontWeight: '900', color: 'var(--text-primary)', margin: 0 }}>
+                        {selectedService.title}
+                      </h3>
+                      <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                        {selectedService.category} • Deadline: {selectedService.deadline}
                       </span>
                     </div>
                   </div>
 
-                  <span className="badge badge-teal" style={{ fontSize: '10px' }}>
-                    📅 {service.deadline}
-                  </span>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '24px', fontWeight: '900', color: readiness === 100 ? '#10b981' : 'var(--primary)' }}>
+                      {readiness}%
+                    </div>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '700' }}>Readiness Score</span>
+                  </div>
                 </div>
 
-                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
-                  {service.description}
-                </p>
+                {/* Portal Link */}
+                {selectedService.officialPortal?.url && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--primary-light)', padding: '10px 14px', borderRadius: '12px', margin: '18px 0' }}>
+                    <span style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: '700' }}>
+                      🌐 Official Portal: {selectedService.officialPortal.label}
+                    </span>
+                    <a
+                      href={selectedService.officialPortal.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn btn-primary btn-sm"
+                      style={{ textDecoration: 'none' }}
+                    >
+                      Open Official Link ↗
+                    </a>
+                  </div>
+                )}
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-glass)', paddingTop: '10px' }}>
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                    📋 {service.requiredDocuments.length} required documents
-                  </span>
-                  <span style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: '800' }}>
-                    {isSelected ? '● Currently Selected' : 'Click to Match →'}
-                  </span>
+                {/* Requirements Gap Matrix */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', maxHeight: '360px', overflowY: 'auto' }}>
+                  {/* Matched */}
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                      <span style={{ color: '#10b981', fontWeight: '800' }}>✓</span>
+                      <span style={{ fontSize: '13px', fontWeight: '800', color: 'var(--text-primary)' }}>
+                        Matched in Vault ({match?.matchedCount ?? 0} / {match?.totalRequired ?? 0})
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                      {match?.availableDocuments?.map((d, i) => (
+                        <span key={i} className="badge badge-teal" style={{ padding: '6px 12px', fontSize: '12px' }}>
+                          ✓ {d.requiredName} {d.isEquivalentMatch && <span style={{ opacity: 0.8 }}>(via {d.userDocName})</span>}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Missing */}
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                      <span style={{ color: '#ef4444', fontWeight: '800' }}>✕</span>
+                      <span style={{ fontSize: '13px', fontWeight: '800', color: 'var(--text-primary)' }}>
+                        Missing Requirements ({match?.missingCount ?? 0})
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {match?.missingDocuments?.map((doc, idx) => (
+                        <div
+                          key={idx}
+                          style={{
+                            background: 'rgba(239, 68, 68, 0.06)',
+                            border: '1px solid rgba(239, 68, 68, 0.2)',
+                            padding: '10px 14px',
+                            borderRadius: '10px',
+                          }}
+                        >
+                          <strong style={{ fontSize: '13px', color: 'var(--text-primary)' }}>{doc.name}</strong>
+                          <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>
+                            {doc.guide?.nextStep || 'Procure from designated government office.'}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )
-          })}
-        </div>
 
-        {/* Selected Service In-Depth Matcher */}
-        {selectedService && (
-          <div className="card" style={{ position: 'sticky', top: '90px', height: 'fit-content' }}>
-            <div className="card-header" style={{ marginBottom: '16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                <div style={{
-                  width: '50px',
-                  height: '50px',
-                  borderRadius: '14px',
-                  background: 'var(--primary-light)',
-                  border: '1px solid var(--primary-glow)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '26px',
-                }}>
-                  {selectedService.badgeIcon || '🏛️'}
-                </div>
-                <div>
-                  <span className="badge badge-teal" style={{ marginBottom: '4px' }}>{selectedService.category}</span>
-                  <h3 className="card-title" style={{ fontSize: '20px' }}>{selectedService.title}</h3>
-                  <p className="card-subtitle">{selectedService.description}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Official Fee & Portal */}
-            <div style={{
-              background: 'rgba(0, 0, 0, 0.03)',
-              padding: '14px 18px',
-              borderRadius: '12px',
-              border: '1px solid var(--border-glass)',
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '14px',
-              marginBottom: '18px',
-            }}>
-              <div>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '800' }}>Official Fee</span>
-                <p style={{ fontSize: '14px', fontWeight: '900', color: 'var(--text-primary)' }}>{selectedService.fee || 'Varies'}</p>
-              </div>
-              <div>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '800' }}>Official Route</span>
-                <a
-                  href={selectedService.officialPortal?.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ fontSize: '13px', fontWeight: '800', color: 'var(--primary)', textDecoration: 'none', display: 'block' }}
-                >
-                  {selectedService.officialPortal?.label} ↗
-                </a>
-              </div>
-            </div>
-
-            {/* Readiness Bar */}
-            <div className="service-header-box" style={{ marginBottom: '18px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-secondary)' }}>
-                  Vault Readiness Meter
-                </span>
-                <strong style={{ fontSize: '16px', color: readiness === 100 ? '#16a34a' : 'var(--primary)' }}>
-                  {readiness}% Ready ({match?.totalAvailable ?? 0}/{match?.totalRequired ?? 0})
-                </strong>
-              </div>
-              <div className="progress-bar-bg" style={{ height: '10px' }}>
-                <div
-                  className="progress-bar-fill"
-                  style={{
-                    width: `${readiness}%`,
-                    background: readiness === 100 ? 'linear-gradient(90deg, #10b981, #059669)' : undefined,
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Document Breakdown */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '22px' }}>
-              <h4 style={{ fontSize: '13px', fontWeight: '800', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
-                Required Documents Checklist:
-              </h4>
-
-              {selectedService.requiredDocuments.map((docName) => {
-                const isReady = match?.availableDocuments?.some((d) => d.name === docName)
-                return (
-                  <div
-                    key={docName}
-                    style={{
-                      background: isReady ? 'var(--success-bg)' : 'var(--warning-bg)',
-                      border: `1px solid ${isReady ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`,
-                      borderRadius: '10px',
-                      padding: '10px 14px',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
+                {/* Actions */}
+                <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--border-glass)' }}>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    style={{ width: '100%' }}
+                    onClick={() => {
+                      onCreateTasks(selectedService.id)
+                      onNavigate('tasks')
                     }}
                   >
-                    <div>
-                      <strong style={{ fontSize: '13px', color: 'var(--text-primary)' }}>
-                        {isReady ? '✓' : '✗'} {docName}
-                      </strong>
-                    </div>
-                    <span className={`badge ${isReady ? 'badge-green' : 'badge-amber'}`}>
-                      {isReady ? 'In Vault' : 'Missing'}
-                    </span>
-                  </div>
-                )
-              })}
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <button
-                type="button"
-                className="btn btn-primary"
-                style={{ width: '100%' }}
-                onClick={onCreateTasks}
-              >
-                📋 Build Missing Document Task Plan
-              </button>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                style={{ width: '100%' }}
-                onClick={() => onNavigate('guide')}
-              >
-                🏛️ View Official Step-by-Step Guide
-              </button>
-            </div>
+                    📋 Generate Missing Document Procurement Tasks
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </>
+      )}
+
+      {/* 2. AADHAAR SEVA KENDRA LOCATOR TAB */}
+      {activeSubTab === 'aadhaar-centers' && (
+        <div style={{ marginTop: '20px' }}>
+          {/* City Filter Bar */}
+          <div className="apple-segmented-bar" style={{ marginBottom: '20px' }}>
+            {cities.map((city) => (
+              <button
+                key={city}
+                type="button"
+                className={`apple-segmented-item ${selectedCity === city ? 'active' : ''}`}
+                onClick={() => setSelectedCity(city)}
+              >
+                {city}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '16px' }}>
+            {filteredCenters.map((center) => (
+              <div
+                key={center.id}
+                style={{
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border-glass)',
+                  borderRadius: '16px',
+                  padding: '20px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '10px',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <span className="badge badge-teal">UIDAI Verified Center</span>
+                  <span style={{ fontSize: '12px', fontWeight: '800', color: 'var(--primary)' }}>📍 {center.city}</span>
+                </div>
+
+                <h4 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>
+                  {center.name}
+                </h4>
+
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
+                  🏢 {center.address}
+                </p>
+
+                <div style={{ background: 'rgba(0,0,0,0.03)', padding: '10px', borderRadius: '10px', border: '1px solid var(--border-glass)', fontSize: '11px', color: 'var(--text-muted)' }}>
+                  <strong>⏱️ Timings:</strong> {center.timings}
+                  <div style={{ marginTop: '4px' }}>
+                    <strong>🛠️ Services:</strong> {center.servicesOffered}
+                  </div>
+                </div>
+
+                <div style={{ marginTop: 'auto', paddingTop: '8px' }}>
+                  <a
+                    href={center.bookingUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn btn-primary btn-sm"
+                    style={{ width: '100%', textDecoration: 'none', textAlign: 'center' }}
+                  >
+                    📅 Book UIDAI Appointment Online ↗
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

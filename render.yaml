@@ -21,3 +21,4 @@ services:
           type: web
           name: rudoc-backend
           property: host
+
